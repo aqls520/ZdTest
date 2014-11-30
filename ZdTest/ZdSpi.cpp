@@ -977,6 +977,7 @@ void ZdSpi::Init()
 	WaitForSingleObject(g_Event, INFINITE);
 
 	cout << "good" << endl;
+	//test github
 }
 
 
