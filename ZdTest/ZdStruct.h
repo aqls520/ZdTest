@@ -149,8 +149,8 @@ struct OrderCancelReq
 	string userId;
 	string accountNo;
 	string tradePwd;
-	string systemNo;
-	string orderNo;
+	string systemNo;//±ØÌî
+	string orderNo;//±ØÌî
 	string exchangeCode;
 	string code;
 	string buySale;

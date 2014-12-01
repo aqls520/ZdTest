@@ -1,5 +1,6 @@
 #pragma once
 
+//字段对应Tag值
 #define	CLIENTNO	10
 #define	ACCOUNTNO	11
 #define	USERID	12
@@ -168,52 +169,6 @@
 #define	HIDESALEPRICE	535
 #define	HIDESALENUMBER	536
 #define	MARKETTIME	537
-/*
-#define	LOGON	A
-#define	LOGOUT	5
-#define	LOGONBACK	A1
-#define	ORDER	O
-#define	ORDERBACK	O1
-#define	ORDERACCOUNT	O2
-#define	ACCOUNTSEARCH	AC
-#define	ACCOUNTSEARCHBACK	AC1
-#define	CANCEL	C
-#define	CANCELBACK	C1
-#define	OPENSEARCH	OS
-#define	OPENSEARCHBACK	OS1
-#define	FILLSEARCH	FS
-#define	FILLSEARCHBACK	FS1
-#define	MODIFY	M
-#define	MODIFYBACK	M1
-#define	ORDERSEARCH	ORS
-#define	ORDERSEARCHBACK	ORS1
-#define	MARKET	MA
-#define	MARKETBACK	MA1
-#define	ERRORINFO	E
-#define	SYSNO	SY
-#define	FILLEDCAST	O3
-#define	GETUSECONTROL	HY
-#define	EXCHANGESEARCH	ES
-#define	EXCHANGESEARCHBACK	ES1
-#define	CURRENCYSEARCH	CS
-#define	CURRENCYSEARCHBACK	CS1
-#define	OPENSEARCHY	OSY
-#define	OPENSEARCHYBACK	OSY1
-#define	OPENDETAIL	OD
-#define	OPENDETAILBACK	OD1
-#define	STOPWINLIST	SWL
-#define	STOPWINLISTBACK	SWL1
-#define	SETYINGSUN	SYS
-#define	SETYINGSUNBACK	SYS1
-#define	DELYINGSUN	DYS
-#define	DELYINGSUNBACK	DYS1
-#define	MARKETFIVE	MA2
-#define	MARKETNEW	MA3
-#define	MARKETPR	MA4
-#define	HEATBIT	HB
-#define	ORDERSTATUS	OST
-*/
-
 
 //通讯类请求标志
 #define	Logon	"A"
@@ -261,3 +216,6 @@
 #define	OrderStatus	"OST"
 
 
+//错误代码定义
+#define NoErr "00000"
+#define ServerDisconnected "00001"

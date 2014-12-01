@@ -906,8 +906,8 @@ void ZdSpi::Init()
 	InHandle = GetShZdTradeLib();
 	InHandle->InitShZdServer();
 	InHandle->RegisterOutLib(this);
-	//InHandle->RegisterFront("222.73.106.130", 7787);//上海电信
-	InHandle->RegisterFront("203.186.175.82", 9787);//香港电信
+	InHandle->RegisterFront("222.73.106.130", 7787);//上海电信
+	//InHandle->RegisterFront("203.186.175.82", 9787);//香港电信
 	WaitForSingleObject(g_Event, INFINITE);
 
 	LoginReq lr = LoginReq();
@@ -957,7 +957,7 @@ void ZdSpi::Init()
 	odr.userId = "demo000666";
 	ReqOpenDetail(odr);*/
 	
-	for (int i = 1; i <= 1;i++)
+	/*for (int i = 1; i <= 1;i++)
 	{
 		OrderReq or = OrderReq();
 		or.userId = "demo000666";
@@ -971,7 +971,21 @@ void ZdSpi::Init()
 		or.localN0 = "-1";
 
 		ReqOrder(or);
-	}
+	}*/
+
+	OrderCancelReq ocr = OrderCancelReq();
+	//ocr.userId = "demo000666";
+	//ocr.accountNo = "00003152";
+	ocr.systemNo = "00003152200005";
+	ocr.orderNo = "1006437";
+	/*ocr.exchangeCode = "CME";
+	ocr.code = "6A1412";
+	ocr.buySale = "1";
+	ocr.orderNumber = "1";
+	ocr.orderPrice = "0.8411";
+	ocr.filledNumber = "0";*/
+
+	ReqCancel(ocr);
 	
 
 	WaitForSingleObject(g_Event, INFINITE);
