@@ -30,9 +30,27 @@
     <ClInclude Include="ZdStruct.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Lib_dll\ThostFtdcMdApi.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib_dll\ThostFtdcTraderApi.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib_dll\ThostFtdcUserApiDataType.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib_dll\ThostFtdcUserApiStruct.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Lib_dll\ShZdTradeLib.lib" />
+    <Library Include="Lib_dll\thostmduserapi.lib">
+      <Filter>头文件</Filter>
+    </Library>
+    <Library Include="Lib_dll\thosttraderapi.lib">
+      <Filter>头文件</Filter>
+    </Library>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ZdSpi.cpp">
