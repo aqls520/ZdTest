@@ -215,7 +215,23 @@
 #define	HeatBit	"HB"
 #define	OrderStatus	"OST"
 
-
 //错误代码定义
 #define NoErr "00000"
 #define ServerDisconnected "00001"
+
+//SpreadFormulaType是一个价差公式类型
+#define MINUS '1' //减
+#define DIVIDED '2' //除
+typedef char SpreadFormulaType;
+
+#define NOTTOUCH '1' //未触发
+#define TOUCH '2' //已触发
+#define ALLFILL //完全成交
+typedef char SpreadOrderStatus;
+
+
+#define SUBMIT '1'//已提交
+#define QUEUEING '2'//排队中
+#define PARTFILL '3'//部分成交
+#define ALLFILL '4'//全部成交
+typedef char SingleOrderStatus;

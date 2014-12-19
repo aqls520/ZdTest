@@ -13,14 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="API">
+      <UniqueIdentifier>{76e21b12-fcb2-41a3-8c0d-bb11aaa33ae8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Lib_dll\ShZdMessage.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib_dll\ShZdTradeLib.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="ZdSpi.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -30,26 +27,49 @@
     <ClInclude Include="ZdStruct.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Lib_dll\ThostFtdcMdApi.h">
+    <ClInclude Include="SpreadStgy.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="StrategyDeal.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib_dll\ThostFtdcMdApi.h">
+      <Filter>API</Filter>
     </ClInclude>
     <ClInclude Include="Lib_dll\ThostFtdcTraderApi.h">
-      <Filter>头文件</Filter>
+      <Filter>API</Filter>
     </ClInclude>
     <ClInclude Include="Lib_dll\ThostFtdcUserApiDataType.h">
-      <Filter>头文件</Filter>
+      <Filter>API</Filter>
     </ClInclude>
     <ClInclude Include="Lib_dll\ThostFtdcUserApiStruct.h">
+      <Filter>API</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib_dll\ShZdMessage.h">
+      <Filter>API</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib_dll\ShZdTradeLib.h">
+      <Filter>API</Filter>
+    </ClInclude>
+    <ClInclude Include="SpStgyExec.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CtpQtSpi.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CtpTdSpi.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="Lib_dll\ShZdTradeLib.lib" />
     <Library Include="Lib_dll\thostmduserapi.lib">
-      <Filter>头文件</Filter>
+      <Filter>API</Filter>
     </Library>
     <Library Include="Lib_dll\thosttraderapi.lib">
-      <Filter>头文件</Filter>
+      <Filter>API</Filter>
+    </Library>
+    <Library Include="Lib_dll\ShZdTradeLib.lib">
+      <Filter>API</Filter>
     </Library>
   </ItemGroup>
   <ItemGroup>
@@ -57,6 +77,21 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SpreadStgy.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyDeal.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SpStgyExec.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CtpQtSpi.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CtpTdSpi.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

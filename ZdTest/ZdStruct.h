@@ -528,3 +528,76 @@ struct MarketPrRtn
 	string oldClose;
 
 };
+
+//合约信息
+struct Instrument
+{
+	string code; //代码
+	string exchange;//交易所
+	string dir; //方向
+	string orderType; //下单类型：限价、市价
+	bool isActive; //模式：主动、被动
+	double orderVolRatio; //下单手数比例
+	int minOrderBookVol; //最小对盘挂单量
+	int saveDepth;//安全深度
+	int priceTolerance; //价格容忍度
+};
+
+//策略配置
+struct StgyConfig
+{
+	string StgyCode; //策略代码
+	string StgyName; //策略名称
+	Instrument ActiveInst; //主动腿合约
+	Instrument PassiveInst; //被动腿合约
+	SpreadFormulaType FormulaType;//价差公式类型
+	double PriceTick;//价格最小变动单位
+	int ActiveBatchVol;//主动合约最大批量
+};
+
+struct SpTick
+{
+	double Spread;
+	double SpreadBid1P;
+	double SpreadAsk1P;
+	int SpreadBid1V;
+	int SpreadAsk1V;
+};
+
+struct SpOrder
+{
+	double OrderSpread;//委托价差价格
+	char Direction;//方向
+	int SpOrderRef;//价差报单引用
+	SpreadOrderStatus SpOrderStatus;//价差报单状态
+
+	//主动腿信息
+	string Act_Inst;//合约
+	int Act_OrderRef;//报单引用
+	string Act_OrderPrice;//报单价格
+	SingleOrderStatus Act_OrderStatus;//报单状态
+	string Act_FillPrice;//成交价格
+	string Act_FillVol;//成交数量
+	string Act_ErrorNo;//错误编号
+	string Act_ErrorMsg;//错误信息
+
+	//被动腿信息
+	string Pas_Inst;//合约
+	int Pas_OrderRef;//报单引用
+	string Pas_OrderPrice;//报单价格
+	SingleOrderStatus Pas_OrderStatus;//报单状态
+	string Pas_FillPrice;//成交价格
+	string Pas_FillVol;//成交数量
+	string Pas_ErrorNo;//错误编号
+	string Pas_ErrorMsg;//错误信息
+};
+
+struct Tick
+{
+
+};
+
+struct 
+{
+
+};
