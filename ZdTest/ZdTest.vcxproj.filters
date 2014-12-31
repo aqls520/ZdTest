@@ -62,13 +62,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <Library Include="Lib_dll\ShZdTradeLib.lib">
+      <Filter>API</Filter>
+    </Library>
     <Library Include="Lib_dll\thostmduserapi.lib">
       <Filter>API</Filter>
     </Library>
     <Library Include="Lib_dll\thosttraderapi.lib">
-      <Filter>API</Filter>
-    </Library>
-    <Library Include="Lib_dll\ShZdTradeLib.lib">
       <Filter>API</Filter>
     </Library>
   </ItemGroup>

@@ -40,29 +40,14 @@ void CtpTdSpi::OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthenticat
 ///登录请求响应
 void CtpTdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-	printf("user:%s\n", pRspUserLogin->UserID);
-	/*if (IsErrorRspInfo(pRspInfo))
-	{
-		printf(pRspInfo->ErrorMsg);
-	}
-	else
-		printf("密码正确");*/
-
 	if (bIsLast && !IsErrorRspInfo(pRspInfo))
 	{
+		m_iFrontID = pRspUserLogin->FrontID;
+		m_iSessionID = pRspUserLogin->SessionID;
 		m_iOrderRef = atoi(pRspUserLogin->MaxOrderRef);
 		ReqSettleInfoConfirm();
 	}
 }
-
-///登出请求响应
-void CtpTdSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///用户口令更新请求响应
-void CtpTdSpi::OnRspUserPasswordUpdate(CThostFtdcUserPasswordUpdateField *pUserPasswordUpdate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///资金账户口令更新请求响应
-void CtpTdSpi::OnRspTradingAccountPasswordUpdate(CThostFtdcTradingAccountPasswordUpdateField *pTradingAccountPasswordUpdate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
 
 ///报单录入请求响应
 void CtpTdSpi::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
@@ -85,35 +70,11 @@ void CtpTdSpi::OnRspOrderAction(CThostFtdcInputOrderActionField *pInputOrderActi
 	printf("OnRspOrderAction-errormsg:%s\n", pRspInfo->ErrorMsg);
 }
 
-///查询最大报单数量响应
-void CtpTdSpi::OnRspQueryMaxOrderVolume(CThostFtdcQueryMaxOrderVolumeField *pQueryMaxOrderVolume, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
 ///投资者结算结果确认响应
 void CtpTdSpi::OnRspSettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	
 }
-
-///删除预埋单响应
-void CtpTdSpi::OnRspRemoveParkedOrder(CThostFtdcRemoveParkedOrderField *pRemoveParkedOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///删除预埋撤单响应
-void CtpTdSpi::OnRspRemoveParkedOrderAction(CThostFtdcRemoveParkedOrderActionField *pRemoveParkedOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///执行宣告录入请求响应
-void CtpTdSpi::OnRspExecOrderInsert(CThostFtdcInputExecOrderField *pInputExecOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///执行宣告操作请求响应
-void CtpTdSpi::OnRspExecOrderAction(CThostFtdcInputExecOrderActionField *pInputExecOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///询价录入请求响应
-void CtpTdSpi::OnRspForQuoteInsert(CThostFtdcInputForQuoteField *pInputForQuote, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///报价录入请求响应
-void CtpTdSpi::OnRspQuoteInsert(CThostFtdcInputQuoteField *pInputQuote, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///报价操作请求响应
-void CtpTdSpi::OnRspQuoteAction(CThostFtdcInputQuoteActionField *pInputQuoteAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
 
 ///请求查询报单响应
 void CtpTdSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
@@ -162,17 +123,6 @@ void CtpTdSpi::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAcc
 
 }
 
-///请求查询投资者响应
-void CtpTdSpi::OnRspQryInvestor(CThostFtdcInvestorField *pInvestor, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询交易编码响应
-void CtpTdSpi::OnRspQryTradingCode(CThostFtdcTradingCodeField *pTradingCode, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
-	if (!pTradingCode) 
-		return;
-	printf("Eid:%s,Cid:%s,CidType:%c\n", pTradingCode->ExchangeID, pTradingCode->ClientID,pTradingCode->ClientIDType);
-}
-
 ///请求查询合约保证金率响应
 void CtpTdSpi::OnRspQryInstrumentMarginRate(CThostFtdcInstrumentMarginRateField *pInstrumentMarginRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
@@ -194,13 +144,6 @@ void CtpTdSpi::OnRspQryInstrumentCommissionRate(CThostFtdcInstrumentCommissionRa
 		printf("OpenRatio:", pInstrumentCommissionRate->OpenRatioByMoney);
 	}
 }
-
-///请求查询交易所响应
-void CtpTdSpi::OnRspQryExchange(CThostFtdcExchangeField *pExchange, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询产品响应
-void CtpTdSpi::OnRspQryProduct(CThostFtdcProductField *pProduct, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
 ///请求查询合约响应
 void CtpTdSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
@@ -219,20 +162,6 @@ void CtpTdSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThost
 	SetEvent(event);*/
 
 }
-
-///请求查询行情响应
-void CtpTdSpi::OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询投资者结算结果响应
-void CtpTdSpi::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementInfo, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
-{
-	
-	if (bIsLast)
-	{
-		printf("2");
-	}
-}
-
 
 ///报单通知
 void CtpTdSpi::OnRtnOrder(CThostFtdcOrderField *pOrder)
@@ -273,113 +202,14 @@ void CtpTdSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailFi
 		pInvestorPositionDetail->CloseProfitByTrade,
 		pInvestorPositionDetail->CloseProfitByDate);
 }
-	
-///请求查询客户通知响应
-void CtpTdSpi::OnRspQryNotice(CThostFtdcNoticeField *pNotice, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询结算信息确认响应
-void CtpTdSpi::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询投资者持仓明细响应
-void CtpTdSpi::OnRspQryInvestorPositionCombineDetail(CThostFtdcInvestorPositionCombineDetailField *pInvestorPositionCombineDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///查询保证金监管系统经纪公司资金账户密钥响应
-void CtpTdSpi::OnRspQryCFMMCTradingAccountKey(CThostFtdcCFMMCTradingAccountKeyField *pCFMMCTradingAccountKey, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询仓单折抵信息响应
-void CtpTdSpi::OnRspQryEWarrantOffset(CThostFtdcEWarrantOffsetField *pEWarrantOffset, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询投资者品种/跨品种保证金响应
-void CtpTdSpi::OnRspQryInvestorProductGroupMargin(CThostFtdcInvestorProductGroupMarginField *pInvestorProductGroupMargin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询交易所保证金率响应
-void CtpTdSpi::OnRspQryExchangeMarginRate(CThostFtdcExchangeMarginRateField *pExchangeMarginRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询交易所调整保证金率响应
-void CtpTdSpi::OnRspQryExchangeMarginRateAdjust(CThostFtdcExchangeMarginRateAdjustField *pExchangeMarginRateAdjust, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询汇率响应
-void CtpTdSpi::OnRspQryExchangeRate(CThostFtdcExchangeRateField *pExchangeRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询二级代理操作员银期权限响应
-void CtpTdSpi::OnRspQrySecAgentACIDMap(CThostFtdcSecAgentACIDMapField *pSecAgentACIDMap, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询期权交易成本响应
-void CtpTdSpi::OnRspQryOptionInstrTradeCost(CThostFtdcOptionInstrTradeCostField *pOptionInstrTradeCost, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询期权合约手续费响应
-void CtpTdSpi::OnRspQryOptionInstrCommRate(CThostFtdcOptionInstrCommRateField *pOptionInstrCommRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询执行宣告响应
-void CtpTdSpi::OnRspQryExecOrder(CThostFtdcExecOrderField *pExecOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询询价响应
-void CtpTdSpi::OnRspQryForQuote(CThostFtdcForQuoteField *pForQuote, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询报价响应
-void CtpTdSpi::OnRspQryQuote(CThostFtdcQuoteField *pQuote, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询转帐流水响应
-void CtpTdSpi::OnRspQryTransferSerial(CThostFtdcTransferSerialField *pTransferSerial, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询银期签约关系响应
-void CtpTdSpi::OnRspQryAccountregister(CThostFtdcAccountregisterField *pAccountregister, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
 
 ///错误应答
 void CtpTdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
 {
 	printf("OnRspError-errormsg:%s\n",pRspInfo->ErrorMsg);
 }
-
-
 ///交易通知
 void CtpTdSpi::OnRtnTradingNotice(CThostFtdcTradingNoticeInfoField *pTradingNoticeInfo) {}
-
-///提示条件单校验错误
-void CtpTdSpi::OnRtnErrorConditionalOrder(CThostFtdcErrorConditionalOrderField *pErrorConditionalOrder) {}
-
-///执行宣告通知
-void CtpTdSpi::OnRtnExecOrder(CThostFtdcExecOrderField *pExecOrder) {}
-
-///执行宣告录入错误回报
-void CtpTdSpi::OnErrRtnExecOrderInsert(CThostFtdcInputExecOrderField *pInputExecOrder, CThostFtdcRspInfoField *pRspInfo) {}
-
-///执行宣告操作错误回报
-void CtpTdSpi::OnErrRtnExecOrderAction(CThostFtdcExecOrderActionField *pExecOrderAction, CThostFtdcRspInfoField *pRspInfo) {}
-
-///询价录入错误回报
-void CtpTdSpi::OnErrRtnForQuoteInsert(CThostFtdcInputExecOrderField *pInputExecOrder, CThostFtdcRspInfoField *pRspInfo) {}
-
-///报价通知
-void CtpTdSpi::OnRtnQuote(CThostFtdcQuoteField *pQuote) {}
-
-///报价录入错误回报
-void CtpTdSpi::OnErrRtnQuoteInsert(CThostFtdcInputQuoteField *pInputQuote, CThostFtdcRspInfoField *pRspInfo) {}
-
-///报价操作错误回报
-void CtpTdSpi::OnErrRtnQuoteAction(CThostFtdcQuoteActionField *pQuoteAction, CThostFtdcRspInfoField *pRspInfo) {}
-
-///询价通知
-void CtpTdSpi::OnRtnForQuoteRsp(CThostFtdcForQuoteRspField *pForQuoteRsp) {}
-
-///请求查询签约银行响应
-void CtpTdSpi::OnRspQryContractBank(CThostFtdcContractBankField *pContractBank, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询预埋单响应
-void CtpTdSpi::OnRspQryParkedOrder(CThostFtdcParkedOrderField *pParkedOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询预埋撤单响应
-void CtpTdSpi::OnRspQryParkedOrderAction(CThostFtdcParkedOrderActionField *pParkedOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询交易通知响应
-void CtpTdSpi::OnRspQryTradingNotice(CThostFtdcTradingNoticeField *pTradingNotice, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
-
-///请求查询经纪公司交易参数响应
-void CtpTdSpi::OnRspQryBrokerTradingParams(CThostFtdcBrokerTradingParamsField *pBrokerTradingParams, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
-{
-	printf("1");
-}
-
 
 
 #pragma endregion
@@ -755,9 +585,4 @@ void CtpTdSpi::ReqOrderCancelByOrdRef(TThostFtdcInstrumentIDType instId, TThostF
 	req.ActionFlag = THOST_FTDC_AF_Delete;  //操作标志 
 
 	m_pTdApi->ReqOrderAction(&req, ++m_iReqNo);
-}
-
-void CtpTdSpi::OnTick(CThostFtdcDepthMarketDataField* pDepthMarketData)
-{
-
 }

@@ -25,7 +25,7 @@ private:
 
 	//预留接口
 	//策略配置更新
-	void UpdateStgyCfg(StgyConfig* aStygCfg){ m_MyStgyCfg = *aStygCfg; }
+	void UpdateStgyCfg(StgyConfig* aStygCfg);
 
 
 public:
@@ -35,7 +35,7 @@ public:
 	StgyConfig m_MyStgyCfg;
 	LPVOID pTradeSpiAct;
 	LPVOID pTradeSpiPas;
-	map<string, Tick> m_mInstTick;
+	map<string,Tick> m_mInstTick;
 	SpreadStgy* m_SpStgy;
 	vector<SpOrder> m_vSpOdList;
 	SpOrder m_CurSpOrder;

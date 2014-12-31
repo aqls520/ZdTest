@@ -14,7 +14,6 @@ CtpQtSpi::~CtpQtSpi()
 ///当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。
 void CtpQtSpi::OnFrontConnected()
 {
-	ShowMessage("Connect Front\n");
 	ReqUserLogin();
 }
 
@@ -36,16 +35,10 @@ void CtpQtSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThost
 {
 	if (bIsLast && !IsErrorRspInfo(pRspInfo))
 	{
-		char* pIns[2] = { "IF1411", "IF1412" };
-		SubMarketData(pIns, 2);
+
 	}
 }
 
-///登出请求响应
-void CtpQtSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
-{
-	ShowMessage("OnRspUserLogout\n");
-}
 ///错误应答
 void CtpQtSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
 {
@@ -88,11 +81,6 @@ void CtpQtSpi::OnRtnForQuoteRsp(CThostFtdcForQuoteRspField *pForQuoteRsp)
 
 void CtpQtSpi::Init()
 {
-	if (!m_vsFrtAddr.size())
-	{
-		ShowMessage("Init the frontaddr first！\n");
-		return;
-	}
 	m_pQtApi = CThostFtdcMdApi::CreateFtdcMdApi("log//");
 	m_pQtApi->RegisterSpi(this);
 	for (unsigned int i = 0; i < m_vsFrtAddr.size(); i++)
@@ -125,22 +113,6 @@ void CtpQtSpi::LoadQtCfg(char* cfgpath)
 		string keyvalue = cfgdata.substr(idx_split + 1, cfgdata.length());
 		if (key == "FrontAddr")
 			m_vsFrtAddr.push_back(keyvalue);
-	}
-	fin.close();
-}
-void CtpQtSpi::LoadInstCfg(char* instpath)
-{
-	fstream fin;
-	fin.open(instpath, ios::in);
-	while (!fin.eof())
-	{
-		string insdata;
-		int idx_begin = 0;
-		int idx_split = 0;
-		getline(fin, insdata);
-		if (insdata.length() < 1)
-			continue;
-		m_vsInst.push_back(insdata);
 	}
 	fin.close();
 }

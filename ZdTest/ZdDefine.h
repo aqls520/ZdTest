@@ -226,7 +226,6 @@ typedef char SpreadFormulaType;
 
 #define NOTTOUCH '1' //未触发
 #define TOUCH '2' //已触发
-#define ALLFILL //完全成交
 typedef char SpreadOrderStatus;
 
 

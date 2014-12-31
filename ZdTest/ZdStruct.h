@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "ZdDefine.h"
 using namespace std;
 
 struct LoginReq
@@ -594,10 +595,5 @@ struct SpOrder
 
 struct Tick
 {
-
-};
-
-struct 
-{
-
+	int a;
 };

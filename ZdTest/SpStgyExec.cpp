@@ -1,8 +1,8 @@
 #include "SpStgyExec.h"
 
-LPVOID ExecOrder(LPVOID p)
+void ExecOrder(LPVOID p)
 {
-	SpStgyExec* pStgyExec = (SpStgyExec*)p;
+	/*SpStgyExec* pStgyExec = (SpStgyExec*)p;
 	while (true)
 	{
 		for (size_t i = 0; i < pStgyExec->m_vSpOdList.size();i++)
@@ -13,7 +13,8 @@ LPVOID ExecOrder(LPVOID p)
 			}
 		}
 		WaitForSingleObject(pStgyExec->m_Event, INFINITE);
-	}
+	}*/
+
 }
 
 SpStgyExec::SpStgyExec()
@@ -45,7 +46,7 @@ void SpStgyExec::OnTick(SpTick t)
 //报单变化了就推给策略
 void SpStgyExec::OnOrder(SpOrder spOrder)
 {
-	switch (spOrder.SpOrderStatus)
+	/*switch (spOrder.SpOrderStatus)
 	{
 	case ALLFILL:
 		m_SpStgy->RtnOrderFill(spOrder);
@@ -54,7 +55,7 @@ void SpStgyExec::OnOrder(SpOrder spOrder)
 
 	default:
 		break;
-	}
+	}*/
 }
 
 void SpStgyExec::SendSpOrder(SpOrder spod)
