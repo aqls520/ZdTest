@@ -12,7 +12,6 @@ SpreadStgy::~SpreadStgy()
 
 void SpreadStgy::Init(){}
 void SpreadStgy::RtnConnect(){}
-void SpreadStgy::RtnLogin(){}
 void SpreadStgy::RtnTick(SpTick){}
 void SpreadStgy::RtnOrderFill(SpOrder od){}
 void SpreadStgy::RtnOrderCancel(SpOrder od){}

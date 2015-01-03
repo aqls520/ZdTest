@@ -15,7 +15,17 @@ public:
 	SpStgyExec();
 	~SpStgyExec();
 
+	
+public:
+	//给策略调用的接口
+	void SubMarketData(StgyConfig);
+	void UpLoadStgyCfg(StgyConfig);
+	void SendSpOrder(SpOrder spod);
+
 private:
+	//接口封装初始化
+	void InitSpi();
+
 	//行情推给策略
 	void OnTick(SpTick t);
 	//报单变化了就推给策略
@@ -29,9 +39,9 @@ private:
 
 
 public:
-	void SendSpOrder(SpOrder spod);
 	
-public:
+	
+private:
 	StgyConfig m_MyStgyCfg;
 	LPVOID pTradeSpiAct;
 	LPVOID pTradeSpiPas;

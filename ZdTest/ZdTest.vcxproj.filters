@@ -30,9 +30,6 @@
     <ClInclude Include="SpreadStgy.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="StrategyDeal.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Lib_dll\ThostFtdcMdApi.h">
       <Filter>API</Filter>
     </ClInclude>
@@ -60,6 +57,9 @@
     <ClInclude Include="CtpTdSpi.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="SpreadMgr.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Lib_dll\ShZdTradeLib.lib">
@@ -82,9 +82,6 @@
     <ClCompile Include="SpreadStgy.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="StrategyDeal.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="SpStgyExec.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -92,6 +89,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CtpTdSpi.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SpreadMgr.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

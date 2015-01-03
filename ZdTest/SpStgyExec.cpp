@@ -46,7 +46,7 @@ void SpStgyExec::OnTick(SpTick t)
 //报单变化了就推给策略
 void SpStgyExec::OnOrder(SpOrder spOrder)
 {
-	/*switch (spOrder.SpOrderStatus)
+	switch (spOrder.SpOrderStatus)
 	{
 	case ALLFILL:
 		m_SpStgy->RtnOrderFill(spOrder);
@@ -55,7 +55,7 @@ void SpStgyExec::OnOrder(SpOrder spOrder)
 
 	default:
 		break;
-	}*/
+	}
 }
 
 void SpStgyExec::SendSpOrder(SpOrder spod)

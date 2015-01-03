@@ -87,7 +87,7 @@
     <ClInclude Include="Lib_dll\ThostFtdcUserApiStruct.h" />
     <ClInclude Include="SpreadStgy.h" />
     <ClInclude Include="SpStgyExec.h" />
-    <ClInclude Include="StrategyDeal.h" />
+    <ClInclude Include="SpreadMgr.h" />
     <ClInclude Include="ZdDefine.h" />
     <ClInclude Include="ZdStruct.h" />
     <ClInclude Include="ZdSpi.h" />
@@ -103,7 +103,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SpreadStgy.cpp" />
     <ClCompile Include="SpStgyExec.cpp" />
-    <ClCompile Include="StrategyDeal.cpp" />
+    <ClCompile Include="SpreadMgr.cpp" />
     <ClCompile Include="ZdSpi.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
