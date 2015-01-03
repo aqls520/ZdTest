@@ -4,6 +4,7 @@
 #include "ZdStruct.h"
 #include "ZdDefine.h"
 #include "SpStgyExec.h"
+
 using namespace std;
 
 class SpreadStgy
@@ -19,13 +20,9 @@ public:
 	void RtnOrderFill(SpOrder od);
 	void RtnOrderCancel(SpOrder od);
 	void RtnOrderFail(SpOrder od);
-
-	
-
-
 public:
-	StgyConfig* m_MyStgyCfg;
-	SpStgyExec* m_thisSpExec;
+ 	StgyConfig* m_MyStgyCfg;
+ 	SpStgyExec* m_thisSpExec;
 	
 	
 };

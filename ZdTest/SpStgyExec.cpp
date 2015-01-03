@@ -1,4 +1,5 @@
 #include "SpStgyExec.h"
+#include "SpreadStgy.h"
 
 void ExecOrder(LPVOID p)
 {

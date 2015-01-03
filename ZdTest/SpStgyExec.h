@@ -1,13 +1,14 @@
 #pragma once
 
 #include "ZdStruct.h"
-#include "SpreadStgy.h"
 #include <map>
 #include <vector>
 #include <windows.h>
 using namespace std;
 
 typedef void* LPVOID;
+
+class SpreadStgy;
 
 class SpStgyExec
 {
@@ -37,10 +38,7 @@ private:
 	//²ßÂÔÅäÖÃ¸üÐÂ
 	void UpdateStgyCfg(StgyConfig* aStygCfg);
 
-
-public:
-	
-	
+		
 private:
 	StgyConfig m_MyStgyCfg;
 	LPVOID pTradeSpiAct;
