@@ -19,7 +19,7 @@ public:
 	int RegisterExecSession(SpreadStgy*);
 	
 	//创建执行模块
-	//SpStgyExec* CreateStgyExec();
+	SpStgyExec* CreateStgyExec();
 
 private:
 	//策略指针

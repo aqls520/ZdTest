@@ -2,7 +2,11 @@
 
 #include "Lib_dll/ThostFtdcMdApi.h"
 #include <vector>
+#include <windows.h>
 using namespace std;
+
+
+class SpStgyExec;
 
 class CtpQtSpi:public CThostFtdcMdSpi
 {
@@ -62,12 +66,16 @@ public:
 	void SubMarketData(char* pInstruments[], int tcount);
 	void UnSubMarketData(char* pInstruments[], int tcount);
 	void Release();
+	void RegisterStgyExec(SpStgyExec* stgyexec);
 
 private:
 	CThostFtdcMdApi* m_pQtApi;
 	vector<string> m_vsFrtAddr;
 	vector<string> m_vsInst;
 	int m_iReqNo;
+	SpStgyExec* m_StgyExec;
+	HANDLE m_Event;
+
 
 };
 

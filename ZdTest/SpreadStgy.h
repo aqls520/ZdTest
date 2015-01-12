@@ -20,8 +20,11 @@ public:
 	void RtnOrderFill(SpOrder od);
 	void RtnOrderCancel(SpOrder od);
 	void RtnOrderFail(SpOrder od);
+	void RtnOrderFill(CtpSpOrder od);
+	void RtnOrderCancel(CtpSpOrder od);
+	void RtnOrderFail(CtpSpOrder od);
 public:
- 	StgyConfig* m_MyStgyCfg;
+ 	StgyConfig m_MyStgyCfg;
  	SpStgyExec* m_thisSpExec;
 	
 	

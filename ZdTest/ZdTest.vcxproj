@@ -106,6 +106,10 @@
     <ClCompile Include="SpreadMgr.cpp" />
     <ClCompile Include="ZdSpi.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Lib_dll\thostmduserapi.dll" />
+    <None Include="Lib_dll\thosttraderapi.dll" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

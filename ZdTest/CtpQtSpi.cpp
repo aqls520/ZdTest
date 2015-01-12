@@ -1,13 +1,20 @@
 #include "CtpQtSpi.h"
 #include <fstream>
-#include <windows.h>
 #include <string>
+#include "SpStgyExec.h"
 
 CtpQtSpi::CtpQtSpi()
-{}
+{
+	m_Event = CreateEvent(NULL,false,false,NULL);
+}
 
 CtpQtSpi::~CtpQtSpi()
 {}
+
+void CtpQtSpi::RegisterStgyExec(SpStgyExec* stgyexec)
+{
+	this->m_StgyExec = stgyexec;
+}
 
 #pragma region Api回调
 
@@ -35,7 +42,7 @@ void CtpQtSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThost
 {
 	if (bIsLast && !IsErrorRspInfo(pRspInfo))
 	{
-
+		SetEvent(m_Event);
 	}
 }
 
@@ -68,7 +75,7 @@ void CtpQtSpi::OnRspUnSubForQuoteRsp(CThostFtdcSpecificInstrumentField *pSpecifi
 ///深度行情通知
 void CtpQtSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData) 
 {
-	printf("ID:%s,Lp:%g,Time:%s,MSec:%d\n", pDepthMarketData->InstrumentID,pDepthMarketData->LastPrice, pDepthMarketData->UpdateTime,pDepthMarketData->UpdateMillisec);
+	m_StgyExec->OnCtpRtnTick(pDepthMarketData);
 }
 
 ///询价通知
@@ -81,13 +88,16 @@ void CtpQtSpi::OnRtnForQuoteRsp(CThostFtdcForQuoteRspField *pForQuoteRsp)
 
 void CtpQtSpi::Init()
 {
-	m_pQtApi = CThostFtdcMdApi::CreateFtdcMdApi("log//");
+	//m_pQtApi = CThostFtdcMdApi::CreateFtdcMdApi("log//");
+	m_pQtApi = CThostFtdcMdApi::CreateFtdcMdApi();
 	m_pQtApi->RegisterSpi(this);
-	for (unsigned int i = 0; i < m_vsFrtAddr.size(); i++)
+	m_pQtApi->RegisterFront("tcp://27.115.78.193:41213");
+	/*for (unsigned int i = 0; i < m_vsFrtAddr.size(); i++)
 	{
 		m_pQtApi->RegisterFront((char*)m_vsFrtAddr[i].c_str());
-	}
+	}*/
 	m_pQtApi->Init();
+	WaitForSingleObject(m_Event,INFINITE);
 }
 
 void CtpQtSpi::ReqUserLogin()

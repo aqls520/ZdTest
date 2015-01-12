@@ -7,16 +7,7 @@ using namespace std;
 
 typedef CThostFtdcTraderApi CtpTdApi;
 
-//合约持仓
-struct InstPos
-{
-	string InSt;
-	int dir;
-	int Pos;
-	int YdPos;
-	int TdPos;
-};
-
+class SpStgyExec;
 
 class CtpTdSpi : public CThostFtdcTraderSpi
 {
@@ -152,6 +143,7 @@ public:
 	void LoadTdCfg(char* cfgpath);
 	void SetTdInfo(string brokerid, string investorid, string pwd, string sFrontAddr);
 	void Release();
+	void RegisterStgyExec(SpStgyExec* stgyexec);
 
 
 private:
@@ -170,8 +162,11 @@ private:
 	//-----------------------------
 	vector<CThostFtdcOrderField> m_vOrdList;//委托列表
 	vector<CThostFtdcTradeField> m_vTrdList;//成交列表
-	vector<InstPos> m_vInstPos;
-	//map<string, int> m_mInsOpInt;//合约持仓列表（不支持锁仓）
+
+	SpStgyExec* m_StgyExec;
+	
+
+
 
 };
 

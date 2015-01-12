@@ -1,6 +1,7 @@
 #include "CtpTdSpi.h"
 #include <fstream>
 #include <windows.h>
+#include "SpStgyExec.h"
 using namespace std;
 
 extern HANDLE event;
@@ -10,6 +11,11 @@ CtpTdSpi::CtpTdSpi()
 
 CtpTdSpi::~CtpTdSpi()
 {}
+
+void CtpTdSpi::RegisterStgyExec(SpStgyExec* stgyexec)
+{
+	this->m_StgyExec = stgyexec;
+}
 
 #pragma region Api回调
 
@@ -99,16 +105,9 @@ void CtpTdSpi::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvest
 {
 	if (!pInvestorPosition) 
 		return;
-	printf("合约:%s\n", pInvestorPosition->InstrumentID);
-	printf("持仓多空:%c\n", pInvestorPosition->PosiDirection);
-	printf("持仓日期:%c\n", pInvestorPosition->PositionDate);
-	printf("昨日持仓:%d\n", pInvestorPosition->YdPosition);
-	printf("今日持仓:%d\n", pInvestorPosition->Position);
-	printf("今日持仓Td:%d\n", pInvestorPosition->TodayPosition);
-	printf("\n");
+	
 	if (bIsLast)
 	{
-		int a = 1;
 	}
 }
 
@@ -172,7 +171,7 @@ void CtpTdSpi::OnRtnOrder(CThostFtdcOrderField *pOrder)
 ///成交通知
 void CtpTdSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 {
-	printf("TradeID:%s,OrdRef:%s\n", pTrade->TradeID, pTrade->OrderRef);
+	m_StgyExec->OnCtpRtnTrade(pTrade);
 }
 
 ///报单录入错误回报
