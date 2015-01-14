@@ -612,16 +612,6 @@ struct CtpSpOrder
 	//被动腿报单信息
 	CThostFtdcOrderField pPasOrder;
 
-	//被动腿信息
-	string Pas_Inst;//合约
-	int Pas_OrderRef;//报单引用
-	string Pas_OrderPrice;//报单价格
-	SingleOrderStatus Pas_OrderStatus;//报单状态
-	string Pas_FillPrice;//成交价格
-	string Pas_FillVol;//成交数量
-	string Pas_ErrorNo;//错误编号
-	string Pas_ErrorMsg;//错误信息
-
 };
 
 struct Tick

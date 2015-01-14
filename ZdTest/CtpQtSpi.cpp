@@ -21,6 +21,7 @@ void CtpQtSpi::RegisterStgyExec(SpStgyExec* stgyexec)
 ///当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。
 void CtpQtSpi::OnFrontConnected()
 {
+	m_connStatus = CTP_CONNECTED;
 	ReqUserLogin();
 }
 
@@ -31,7 +32,11 @@ void CtpQtSpi::OnFrontConnected()
 ///        0x2001 接收心跳超时
 ///        0x2002 发送心跳失败
 ///        0x2003 收到错误报文
-void CtpQtSpi::OnFrontDisconnected(int nReason){}
+void CtpQtSpi::OnFrontDisconnected(int nReason)
+{
+	m_connStatus = CTP_DISCONNECTED;
+	m_loginStatus = CTP_LOGOUT;
+}
 
 ///心跳超时警告。当长时间未收到报文时，该方法被调用。
 ///@param nTimeLapse 距离上次接收报文的时间
@@ -42,7 +47,7 @@ void CtpQtSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThost
 {
 	if (bIsLast && !IsErrorRspInfo(pRspInfo))
 	{
-		SetEvent(m_Event);
+		m_loginStatus = CTP_LOGIN;
 	}
 }
 
@@ -92,12 +97,9 @@ void CtpQtSpi::Init()
 	m_pQtApi = CThostFtdcMdApi::CreateFtdcMdApi();
 	m_pQtApi->RegisterSpi(this);
 	m_pQtApi->RegisterFront("tcp://27.115.78.193:41213");
-	/*for (unsigned int i = 0; i < m_vsFrtAddr.size(); i++)
-	{
-		m_pQtApi->RegisterFront((char*)m_vsFrtAddr[i].c_str());
-	}*/
 	m_pQtApi->Init();
-	WaitForSingleObject(m_Event,INFINITE);
+	while (m_loginStatus != CTP_LOGIN)
+	{}
 }
 
 void CtpQtSpi::ReqUserLogin()

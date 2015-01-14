@@ -1,30 +1,39 @@
 #include "SpStgyExec.h"
 #include "SpreadStgy.h"
 
-void ExecOrder(LPVOID p)
+//监测报单开仓条件，即如果满足设置，则执行报单
+void WatchOrder(LPVOID p)
 {
-	/*SpStgyExec* pStgyExec = (SpStgyExec*)p;
+	SpStgyExec* pExec = (SpStgyExec*)p;
 	while (true)
 	{
-		for (size_t i = 0; i < pStgyExec->m_vSpOdList.size();i++)
+		size_t OdCount = pExec->m_qCtpSpOdQueue.size();
+		if (OdCount>0)
 		{
-			if (pStgyExec->m_vSpOdList[i].SpOrderStatus == NOTTOUCH)
-			{
-				
-			}
-		}
-		WaitForSingleObject(pStgyExec->m_Event, INFINITE);
-	}*/
 
+		}
+		else
+		{
+
+		}
+		
+	}
+	
 }
+
+
+
 
 SpStgyExec::SpStgyExec()
 {
 	InitializeCriticalSection(&m_cs);
 	m_Event = CreateEvent(NULL, FALSE, TRUE, NULL);
+	m_MDEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
 	InitSpi();
 	ActiveInstCode = "IF1502";
 	PassiveInstCode = "IF1501";
+	ActiveInstCode = "cu1504";
+	PassiveInstCode = "cu1503";
 }
 SpStgyExec::~SpStgyExec()
 {
@@ -36,7 +45,11 @@ void SpStgyExec::InitSpi()
 	pQtSpi = new CtpQtSpi();
 	pQtSpi->RegisterStgyExec(this);
 	pQtSpi->Init();
-	//pTdSpi->Init();
+
+	pTdSpi = new CtpTdSpi();
+	pTdSpi->RegisterStgyExec(this);
+	pTdSpi->Init();
+
 }
 
 void SpStgyExec::ExecAOrder(SpOrder)
@@ -121,7 +134,6 @@ void SpStgyExec::OnCtpRtnTrade(CThostFtdcTradeField* pTrade)
 		{
 		}
 	}
-	
 }
 
 void SpStgyExec::OnCtpRtnOrder(CThostFtdcOrderField* pOrder)
@@ -149,7 +161,10 @@ void SpStgyExec::OnCtpRtnOrder(CThostFtdcOrderField* pOrder)
 	if (idx==-1)
 		return;
 	
+	//同个时刻只能有一个OrderAdapter在执行，保证策略端能顺序接收回报
+	EnterCriticalSection(&m_cs);
 	OrderAdapter(m_vCtpSpOdList[idx]);
+	LeaveCriticalSection(&m_cs);
 }
 
 //报单变化了就推给策略
@@ -171,6 +186,14 @@ void SpStgyExec::SendSpOrder(SpOrder spod)
 {
 	EnterCriticalSection(&m_cs);
 	m_vSpOdList.push_back(spod);
+	LeaveCriticalSection(&m_cs);
+}
+
+void SpStgyExec::SendSpOrder(CtpSpOrder spod)
+{
+	EnterCriticalSection(&m_cs);
+	m_vCtpSpOdList.push_back(spod);
+	m_qCtpSpOdQueue.push(spod);
 	LeaveCriticalSection(&m_cs);
 }
 

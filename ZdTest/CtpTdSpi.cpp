@@ -7,7 +7,12 @@ using namespace std;
 extern HANDLE event;
 
 CtpTdSpi::CtpTdSpi()
-{}
+{
+	m_Event = CreateEvent(NULL,false,false,NULL);
+	strcpy(m_sBrkID,"66666");
+	strcpy(m_sIvstID,"901719");
+	strcpy(m_sPwd,"018977");
+}
 
 CtpTdSpi::~CtpTdSpi()
 {}
@@ -22,6 +27,7 @@ void CtpTdSpi::RegisterStgyExec(SpStgyExec* stgyexec)
 ///当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。
 void CtpTdSpi::OnFrontConnected()
 {
+	m_connStatus = CTP_CONNECTED;
 	ShowMessage("OnFrontConnected\n");
 	ReqUserLogin();
 }
@@ -33,7 +39,11 @@ void CtpTdSpi::OnFrontConnected()
 ///        0x2001 接收心跳超时
 ///        0x2002 发送心跳失败
 ///        0x2003 收到错误报文
-void CtpTdSpi::OnFrontDisconnected(int nReason){}
+void CtpTdSpi::OnFrontDisconnected(int nReason)
+{
+	m_connStatus = CTP_DISCONNECTED;
+	m_loginStatus = CTP_LOGOUT;
+}
 
 ///心跳超时警告。当长时间未收到报文时，该方法被调用。
 ///@param nTimeLapse 距离上次接收报文的时间
@@ -48,6 +58,7 @@ void CtpTdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThost
 {
 	if (bIsLast && !IsErrorRspInfo(pRspInfo))
 	{
+		m_loginStatus = CTP_LOGIN;
 		m_iFrontID = pRspUserLogin->FrontID;
 		m_iSessionID = pRspUserLogin->SessionID;
 		m_iOrderRef = atoi(pRspUserLogin->MaxOrderRef);
@@ -225,21 +236,15 @@ bool CtpTdSpi::IsErrorRspInfo(CThostFtdcRspInfoField* pRspInfo)
 
 void CtpTdSpi::Init()
 {
-	if (m_vsFrtAddr.size() == 0)
-	{
-		ShowMessage("Init the frontaddr first！\n");
-		return;
-	}
 	m_iReqNo = 0;
 	m_pTdApi = CtpTdApi::CreateFtdcTraderApi("log//");
 	m_pTdApi->RegisterSpi(this);
 	m_pTdApi->SubscribePrivateTopic(THOST_TERT_QUICK);
 	m_pTdApi->SubscribePublicTopic(THOST_TERT_QUICK);
-	for (UINT i = 0; i < m_vsFrtAddr.size(); i++)
-	{
-		m_pTdApi->RegisterFront((char*)m_vsFrtAddr[i].c_str());
-	}
+	m_pTdApi->RegisterFront("tcp://ctpfz1-front1.citicsf.com:51205");
 	m_pTdApi->Init();
+	while (m_loginStatus != CTP_LOGIN)
+	{}
 }
 void CtpTdSpi::LoadTdCfg(char* cfgpath)
 {

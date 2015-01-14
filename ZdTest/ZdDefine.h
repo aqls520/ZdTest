@@ -238,3 +238,11 @@ typedef char SingleOrderStatus;
 #define SendOrder '1' //报单
 #define CancelOrder '2' //撤单
 typedef char OrderActionType;//报单操作类型
+
+#define CTP_CONNECTED '1'
+#define CTP_DISCONNECTED '2'
+typedef char ConnectStatus;
+
+#define CTP_LOGIN '1'
+#define CTP_LOGOUT '2'
+typedef char LoginStatus;

@@ -68,6 +68,10 @@ public:
 	void Release();
 	void RegisterStgyExec(SpStgyExec* stgyexec);
 
+public:
+	ConnectStatus m_connStatus;
+	LoginStatus m_loginStatus;
+
 private:
 	CThostFtdcMdApi* m_pQtApi;
 	vector<string> m_vsFrtAddr;

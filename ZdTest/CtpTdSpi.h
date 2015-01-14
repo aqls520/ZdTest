@@ -3,6 +3,8 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <windows.h>
+#include "ZdDefine.h"
 using namespace std;
 
 typedef CThostFtdcTraderApi CtpTdApi;
@@ -145,6 +147,9 @@ public:
 	void Release();
 	void RegisterStgyExec(SpStgyExec* stgyexec);
 
+public:
+	ConnectStatus m_connStatus;
+	LoginStatus m_loginStatus;
 
 private:
 	CtpTdApi* m_pTdApi;
@@ -164,6 +169,7 @@ private:
 	vector<CThostFtdcTradeField> m_vTrdList;//成交列表
 
 	SpStgyExec* m_StgyExec;
+	HANDLE m_Event;
 	
 
 

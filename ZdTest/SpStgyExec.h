@@ -3,6 +3,7 @@
 #include "ZdStruct.h"
 #include <map>
 #include <vector>
+#include <queue>
 #include <windows.h>
 #include "Lib_dll/ThostFtdcUserApiStruct.h"
 #include "CtpQtSpi.h"
@@ -27,6 +28,7 @@ public:
 	void SubMarketData(StgyConfig);
 	void UpLoadStgyCfg(StgyConfig);
 	void SendSpOrder(SpOrder spod);
+	void SendSpOrder(CtpSpOrder spod);
 
 	//接收行情，推给策略
 	void OnCtpRtnTick(CThostFtdcDepthMarketDataField *pDepthMarketData);
@@ -53,7 +55,8 @@ private:
 	void SetInstCode(StgyConfig* aStygCfg);
 
 		
-private:
+
+
 	StgyConfig m_MyStgyCfg;
 	LPVOID pTradeSpiAct;
 	LPVOID pTradeSpiPas;
@@ -63,14 +66,18 @@ private:
 	SpreadStgy* m_SpStgy;
 	vector<SpOrder> m_vSpOdList;
 	vector<CtpSpOrder> m_vCtpSpOdList;
+	
 	SpOrder m_CurSpOrder;
 	CRITICAL_SECTION m_cs;
-	HANDLE m_Event;
+	HANDLE m_Event,m_MDEvent;
 	SpTick m_curSpTick;
 	vector<SpTick> m_vSpTickL;
 	string ActiveInstCode;
 	string PassiveInstCode;
 	
+public:
+	vector<SpOrder> m_vSpOdList;
+	queue<CtpSpOrder> m_qCtpSpOdQueue;
 
 };
 
