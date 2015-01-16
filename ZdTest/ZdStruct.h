@@ -566,38 +566,6 @@ struct SpTick
 	int SpreadAsk1V;
 };
 
-struct SpOrder
-{
-	OrderActionType OrderAction;
-
-	double OrderSpread;//委托价差价格
-	char Direction;//方向
-	int SpOrderRef;//价差报单引用
-	SpreadOrderStatus SpOrderStatus;//价差报单状态
-
-	//主动腿信息
-	string Act_Inst;//合约
-	int Act_OrderRef;//报单引用
-	string Act_OrderPrice;//报单价格
-	SingleOrderStatus Act_OrderStatus;//报单状态
-	string Act_FillPrice;//成交价格
-	string Act_FillVol;//成交数量
-	string Act_ErrorNo;//错误编号
-	string Act_ErrorMsg;//
-	string Act_OrderSysID;//
-
-	//被动腿信息
-	string Pas_Inst;//合约
-	int Pas_OrderRef;//报单引用
-	string Pas_OrderPrice;//报单价格
-	SingleOrderStatus Pas_OrderStatus;//报单状态
-	string Pas_FillPrice;//成交价格
-	string Pas_FillVol;//成交数量
-	string Pas_ErrorNo;//错误编号
-	string Pas_ErrorMsg;//错误信息
-
-};
-
 struct CtpSpOrder
 {
 	OrderActionType OrderAction;
@@ -618,3 +586,55 @@ struct Tick
 {
 	int a;
 };
+
+struct ComOrder
+{
+	string Inst;
+	char Dir;
+	char Offset;
+	int Vol;
+	double Price;
+};
+
+
+
+
+
+
+
+
+
+/*
+
+struct SpOrder
+{
+OrderActionType OrderAction;
+
+double OrderSpread;//委托价差价格
+char Direction;//方向
+int SpOrderRef;//价差报单引用
+SpreadOrderStatus SpOrderStatus;//价差报单状态
+
+//主动腿信息
+string Act_Inst;//合约
+int Act_OrderRef;//报单引用
+string Act_OrderPrice;//报单价格
+SingleOrderStatus Act_OrderStatus;//报单状态
+string Act_FillPrice;//成交价格
+string Act_FillVol;//成交数量
+string Act_ErrorNo;//错误编号
+string Act_ErrorMsg;//
+string Act_OrderSysID;//
+
+//被动腿信息
+string Pas_Inst;//合约
+int Pas_OrderRef;//报单引用
+string Pas_OrderPrice;//报单价格
+SingleOrderStatus Pas_OrderStatus;//报单状态
+string Pas_FillPrice;//成交价格
+string Pas_FillVol;//成交数量
+string Pas_ErrorNo;//错误编号
+string Pas_ErrorMsg;//错误信息
+
+};
+*/

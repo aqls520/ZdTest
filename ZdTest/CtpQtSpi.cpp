@@ -1,6 +1,5 @@
 #include "CtpQtSpi.h"
 #include <fstream>
-#include <string>
 #include "SpStgyExec.h"
 
 CtpQtSpi::CtpQtSpi()
@@ -93,7 +92,6 @@ void CtpQtSpi::OnRtnForQuoteRsp(CThostFtdcForQuoteRspField *pForQuoteRsp)
 
 void CtpQtSpi::Init()
 {
-	//m_pQtApi = CThostFtdcMdApi::CreateFtdcMdApi("log//");
 	m_pQtApi = CThostFtdcMdApi::CreateFtdcMdApi();
 	m_pQtApi->RegisterSpi(this);
 	m_pQtApi->RegisterFront("tcp://27.115.78.193:41213");

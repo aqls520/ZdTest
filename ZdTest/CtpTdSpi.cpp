@@ -4,8 +4,6 @@
 #include "SpStgyExec.h"
 using namespace std;
 
-extern HANDLE event;
-
 CtpTdSpi::CtpTdSpi()
 {
 	m_Event = CreateEvent(NULL,false,false,NULL);

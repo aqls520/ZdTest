@@ -5,14 +5,14 @@
 #include <vector>
 #include <queue>
 #include <windows.h>
-#include "Lib_dll/ThostFtdcUserApiStruct.h"
-#include "CtpQtSpi.h"
-#include "CtpTdSpi.h"
 using namespace std;
 
 typedef void* LPVOID;
 
 class SpreadStgy;
+class CtpQtSpi;
+class CtpTdSpi;
+
 
 class SpStgyExec
 {
@@ -27,8 +27,9 @@ public:
 	void RegisterExec(SpreadStgy* pSpStgy);
 	void SubMarketData(StgyConfig);
 	void UpLoadStgyCfg(StgyConfig);
-	void SendSpOrder(SpOrder spod);
 	void SendSpOrder(CtpSpOrder spod);
+	bool CheckOrder(CtpSpOrder spod);
+	void ExecAOrder(CtpSpOrder);
 
 	//接收行情，推给策略
 	void OnCtpRtnTick(CThostFtdcDepthMarketDataField *pDepthMarketData);
@@ -41,12 +42,15 @@ private:
 
 	
 	//报单变化了就推给策略
-	void OnOrder(SpOrder);
-	void ExecAOrder(SpOrder);
+	void OnOrder(CtpSpOrder);
+	
 
 	//报单适配器
-	void OrderAdapter(SpOrder);
 	void OrderAdapter(CtpSpOrder spod);
+
+	//价差拆单
+	vector<ComOrder> SplitSpOrder(CtpSpOrder spod);
+	
 
 	//预留接口
 	//策略配置更新
@@ -56,28 +60,31 @@ private:
 
 		
 
-
-	StgyConfig m_MyStgyCfg;
+public:
+	
 	LPVOID pTradeSpiAct;
 	LPVOID pTradeSpiPas;
 	CtpQtSpi* pQtSpi;
 	CtpTdSpi* pTdSpi;
 	map<string,CThostFtdcDepthMarketDataField> m_mInstTick;
 	SpreadStgy* m_SpStgy;
-	vector<SpOrder> m_vSpOdList;
-	vector<CtpSpOrder> m_vCtpSpOdList;
 	
-	SpOrder m_CurSpOrder;
+	CtpSpOrder m_CurSpOrder;
 	CRITICAL_SECTION m_cs;
-	HANDLE m_Event,m_MDEvent;
+	
 	SpTick m_curSpTick;
 	vector<SpTick> m_vSpTickL;
 	string ActiveInstCode;
 	string PassiveInstCode;
 	
-public:
-	vector<SpOrder> m_vSpOdList;
-	queue<CtpSpOrder> m_qCtpSpOdQueue;
+
+
+	vector<CtpSpOrder> m_vSpOdList;
+	vector<CtpSpOrder> m_vNotExecSpOd;
+	vector<CtpSpOrder> m_vAllSpOd;
+	vector<CtpSpOrder> m_vExecSpOd;
+	HANDLE m_Event, m_MDEvent;
+	StgyConfig m_MyStgyCfg;
 
 };
 

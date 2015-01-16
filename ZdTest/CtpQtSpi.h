@@ -3,6 +3,7 @@
 #include "Lib_dll/ThostFtdcMdApi.h"
 #include <vector>
 #include <windows.h>
+#include "ZdDefine.h"
 using namespace std;
 
 
@@ -68,7 +69,6 @@ public:
 	void Release();
 	void RegisterStgyExec(SpStgyExec* stgyexec);
 
-public:
 	ConnectStatus m_connStatus;
 	LoginStatus m_loginStatus;
 

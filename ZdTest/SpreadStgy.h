@@ -17,9 +17,6 @@ public:
 	void Init();
 	void RtnConnect();
 	void RtnTick(SpTick);
-	void RtnOrderFill(SpOrder od);
-	void RtnOrderCancel(SpOrder od);
-	void RtnOrderFail(SpOrder od);
 	void RtnOrderFill(CtpSpOrder od);
 	void RtnOrderCancel(CtpSpOrder od);
 	void RtnOrderFail(CtpSpOrder od);

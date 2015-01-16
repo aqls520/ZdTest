@@ -95,8 +95,4 @@
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Lib_dll\thostmduserapi.dll" />
-    <None Include="Lib_dll\thosttraderapi.dll" />
-  </ItemGroup>
 </Project>

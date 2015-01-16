@@ -106,7 +106,7 @@ public:
 
 #pragma endregion
 
-private:
+public:
 	void ReqUserLogin();
 	void ReqSettleInfoConfirm();
 	void ReqQryTradingAccount();
@@ -120,6 +120,7 @@ private:
 	void ReqQryBrokerTradingParas();
 	void ReqQrySettlementInfo(TThostFtdcDateType TradingDay);
 	void ReqQryInstCommissionRate(TThostFtdcInstrumentIDType InstrumentID);
+	
 	//±¨µ¥
 	void ReqOrdLimit(TThostFtdcInstrumentIDType	Inst, TThostFtdcPosiDirectionType dir, TThostFtdcOffsetFlagType offset,
 		TThostFtdcVolumeType vol, TThostFtdcPriceType price);
