@@ -122,7 +122,7 @@ public:
 	void ReqQryInstCommissionRate(TThostFtdcInstrumentIDType InstrumentID);
 	
 	//±¨µ¥
-	void ReqOrdLimit(TThostFtdcInstrumentIDType	Inst, TThostFtdcPosiDirectionType dir, TThostFtdcOffsetFlagType offset,
+	int ReqOrdLimit(TThostFtdcInstrumentIDType	Inst, TThostFtdcPosiDirectionType dir, TThostFtdcOffsetFlagType offset,
 		TThostFtdcVolumeType vol, TThostFtdcPriceType price);
 	void ReqOrdAny(TThostFtdcInstrumentIDType	Inst, TThostFtdcPosiDirectionType dir, TThostFtdcOffsetFlagType offset,
 		TThostFtdcVolumeType vol);

@@ -3,6 +3,7 @@
 #include <string>
 #include "ZdDefine.h"
 #include "Lib_dll/ThostFtdcUserApiStruct.h"
+#include <windows.h>
 using namespace std;
 
 struct LoginReq
@@ -572,8 +573,10 @@ struct CtpSpOrder
 
 	double OrderSpread;//委托价差价格
 	char Direction;//方向
+	int Vol;//手数
 	int SpOrderRef;//价差报单引用
 	SpreadOrderStatus SpOrderStatus;//价差报单状态
+	HANDLE OrderStatusChgEvent;//报单状态变化事件
 
 	//主动腿报单信息
 	CThostFtdcOrderField pActOrder;

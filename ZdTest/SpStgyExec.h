@@ -29,7 +29,7 @@ public:
 	void UpLoadStgyCfg(StgyConfig);
 	void SendSpOrder(CtpSpOrder spod);
 	bool CheckOrder(CtpSpOrder spod);
-	void ExecAOrder(CtpSpOrder);
+	void ExecAOrder(CtpSpOrder* pSpod);
 
 	//接收行情，推给策略
 	void OnCtpRtnTick(CThostFtdcDepthMarketDataField *pDepthMarketData);
@@ -50,16 +50,16 @@ private:
 
 	//价差拆单
 	vector<ComOrder> SplitSpOrder(CtpSpOrder spod);
-	
+	int GetPosition(string Inst);
 
 	//预留接口
 	//策略配置更新
 	void UpdateStgyCfg(StgyConfig* aStygCfg);
 
 	void SetInstCode(StgyConfig* aStygCfg);
-
-		
-
+	ComOrder GetActOrder(CtpSpOrder spod);
+	ComOrder GetPasOrder(CtpSpOrder spod);
+	char CheckOrderOffset(ComOrder od);
 public:
 	
 	LPVOID pTradeSpiAct;
@@ -70,21 +70,19 @@ public:
 	SpreadStgy* m_SpStgy;
 	
 	CtpSpOrder m_CurSpOrder;
-	CRITICAL_SECTION m_cs;
+	CRITICAL_SECTION m_cs,m_qSpOdCS;
 	
 	SpTick m_curSpTick;
 	vector<SpTick> m_vSpTickL;
 	string ActiveInstCode;
 	string PassiveInstCode;
 	
+	map<string, int> m_InstPos;
 
-
-	vector<CtpSpOrder> m_vSpOdList;
-	vector<CtpSpOrder> m_vNotExecSpOd;
 	vector<CtpSpOrder> m_vAllSpOd;
-	vector<CtpSpOrder> m_vExecSpOd;
-	HANDLE m_Event, m_MDEvent;
+	HANDLE m_Event, m_MDEvent,m_NewOrderEvent;
 	StgyConfig m_MyStgyCfg;
+	queue<CtpSpOrder> m_qSpOrder;
 
 };
 

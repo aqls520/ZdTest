@@ -174,7 +174,7 @@ void CtpTdSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThost
 ///报单通知
 void CtpTdSpi::OnRtnOrder(CThostFtdcOrderField *pOrder)
 {
-	printf("OnRtnOrder：报单状态:%c，报单提交状态：%c\n", pOrder->OrderStatus, pOrder->OrderSubmitStatus);
+	m_StgyExec->OnCtpRtnOrder(pOrder);
 }
 
 ///成交通知
@@ -429,7 +429,7 @@ OrderRef：系统自动从1开始自增，API端可以不需要自己维护，但要求递增，
 如果OrderRef递减，则提示不允许重复报单，从OnRspOI和OnErrOI返回
 */
 
-void CtpTdSpi::ReqOrdLimit(TThostFtdcInstrumentIDType	Inst, TThostFtdcPosiDirectionType dir, TThostFtdcOffsetFlagType offset,
+int CtpTdSpi::ReqOrdLimit(TThostFtdcInstrumentIDType	Inst, TThostFtdcPosiDirectionType dir, TThostFtdcOffsetFlagType offset,
 	TThostFtdcVolumeType vol, TThostFtdcPriceType price)
 {
 	CThostFtdcInputOrderField req;
@@ -457,6 +457,9 @@ void CtpTdSpi::ReqOrdLimit(TThostFtdcInstrumentIDType	Inst, TThostFtdcPosiDirect
 	req.UserForceClose = 0;   //用户强评标志:否
 
 	m_pTdApi->ReqOrderInsert(&req, ++m_iReqNo);
+
+	return m_iOrderRef;
+
 }
 //市价单
 void CtpTdSpi::ReqOrdAny(TThostFtdcInstrumentIDType	Inst, TThostFtdcPosiDirectionType dir, TThostFtdcOffsetFlagType offset,
