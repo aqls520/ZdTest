@@ -30,12 +30,15 @@ public:
 	void SendSpOrder(CtpSpOrder spod);
 	bool CheckOrder(CtpSpOrder spod);
 	void ExecAOrder(CtpSpOrder* pSpod);
+	//查询慎用，ctp有流控，1s只能查1次，最好初始化的时候进行查询
+	vector<CThostFtdcInvestorPositionField> GetCTPCurPosition();
+	CThostFtdcTradingAccountField GetCTPCurAccoutMoney();
 
-	//接收行情，推给策略
+
 	void OnCtpRtnTick(CThostFtdcDepthMarketDataField *pDepthMarketData);
-	//接收成交回报，推给策略
 	void OnCtpRtnTrade(CThostFtdcTradeField* pTrade);
 	void OnCtpRtnOrder(CThostFtdcOrderField* pOrder);
+	
 private:
 	//接口封装初始化
 	void InitSpi();

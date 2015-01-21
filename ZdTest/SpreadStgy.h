@@ -20,6 +20,10 @@ public:
 	void RtnOrderFill(CtpSpOrder od);
 	void RtnOrderCancel(CtpSpOrder od);
 	void RtnOrderFail(CtpSpOrder od);
+
+private:
+	void LoadStgyCfg(char* cfgpath);
+
 public:
  	StgyConfig m_MyStgyCfg;
  	SpStgyExec* m_thisSpExec;

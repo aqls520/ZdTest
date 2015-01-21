@@ -32,13 +32,6 @@ public:
 	///        0x2003 收到错误报文
 	virtual void OnFrontDisconnected(int nReason);
 
-	///心跳超时警告。当长时间未收到报文时，该方法被调用。
-	///@param nTimeLapse 距离上次接收报文的时间
-	virtual void OnHeartBeatWarning(int nTimeLapse);
-
-	///客户端认证响应
-	virtual void OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthenticateField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-
 	///登录请求响应
 	virtual void OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
@@ -109,11 +102,11 @@ public:
 public:
 	void ReqUserLogin();
 	void ReqSettleInfoConfirm();
-	void ReqQryTradingAccount();
+	CThostFtdcTradingAccountField ReqQryTradingAccount();
 	void ReqQryTradingCode();
 	void ReqQryOrder();
 	void ReqQryTrade();
-	void ReqQryIvstPosition();
+	vector<CThostFtdcInvestorPositionField> ReqQryIvstPosition();
 	void ReqQryIvstPositionDetail();
 	void ReqQryInstMarginRate(TThostFtdcInstrumentIDType InstrumentID);
 	void ReqQryInstrument(TThostFtdcInstrumentIDType InstrumentID);
@@ -168,6 +161,9 @@ private:
 	//-----------------------------
 	vector<CThostFtdcOrderField> m_vOrdList;//委托列表
 	vector<CThostFtdcTradeField> m_vTrdList;//成交列表
+
+	CThostFtdcTradingAccountField m_TradeAccount;
+	vector<CThostFtdcInvestorPositionField> m_vPosition;
 
 	SpStgyExec* m_StgyExec;
 	HANDLE m_Event;

@@ -546,6 +546,14 @@ struct Instrument
 	int priceTolerance; //价格容忍度
 };
 
+//单运算符公式
+struct Formula
+{
+	char op;//运算符
+	double ratio1; //第一系数
+	double ratio2; //第二系数
+};
+
 //策略配置
 struct StgyConfig
 {
@@ -553,7 +561,8 @@ struct StgyConfig
 	string StgyName; //策略名称
 	Instrument ActiveInst; //主动腿合约
 	Instrument PassiveInst; //被动腿合约
-	SpreadFormulaType FormulaType;//价差公式类型
+	Formula StgyFormula;//价差公式
+	string strStgyFormula;//价差公式串
 	double PriceTick;//价格最小变动单位
 	int ActiveBatchVol;//主动合约最大批量
 };
@@ -583,6 +592,19 @@ struct CtpSpOrder
 	//被动腿报单信息
 	CThostFtdcOrderField pPasOrder;
 
+};
+
+//持仓信息
+struct SpPosition
+{
+	string Inst;
+	char Dir;
+	int PosVol;
+};
+
+struct AccountInfo
+{
+	double Balance;
 };
 
 struct Tick

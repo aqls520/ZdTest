@@ -224,13 +224,15 @@
 #define DIVIDED '2' //除
 typedef char SpreadFormulaType;
 
-#define NOTTOUCH '1' //未触发
-#define TOUCH '2' //已触发
-#define SPACTFILL '3' //主动腿成交
-#define SPALLFILL '4' //全部成交
-#define CANCEL '5' //已撤单
+#define SP_NOTTOUCH '1' //未触发
+#define SP_TOUCH '2' //已触发
+#define SP_ACT_ORDER '3' //主动腿已报单
+#define SP_ACT_FILL '4' //主动腿成交
+#define SP_PAS_ORDER '5' //被动腿已报单
+#define SP_PAS_FILL '6' //被动腿成交
+#define SP_ALL_FILL '7' //全部成交
+#define SP_CANCEL '8' //已撤单
 typedef char SpreadOrderStatus;
-
 
 #define SUBMIT '1'//已提交
 #define QUEUEING '2'//排队中
@@ -244,8 +246,8 @@ typedef char OrderActionType;//报单操作类型
 
 #define CTP_CONNECTED '1'
 #define CTP_DISCONNECTED '2'
-typedef char ConnectStatus;
+typedef char ConnectStatus;//连接状态
 
 #define CTP_LOGIN '1'
 #define CTP_LOGOUT '2'
-typedef char LoginStatus;
+typedef char LoginStatus;//登录状态

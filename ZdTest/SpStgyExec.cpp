@@ -16,7 +16,6 @@ void OrderExecer(LPVOID p)
 	ExecModule* pEM = (ExecModule*)p;
 	//根据策略配置进行报单
 	pEM->pExec->ExecAOrder(pEM->spod);
-	printf("spod线程结束,OrderRef=%d",pEM->spod->SpOrderRef);
 }
 
 //以行情为驱动，监测报单触发条件，即如果满足设置，则执行报单
@@ -87,18 +86,16 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 	{
 		switch (spod->SpOrderStatus)
 		{
-		//未触发：监测行情
-		case NOTTOUCH:
+		case SP_NOTTOUCH: //未触发：监测行情
 			{
 				if (CheckOrder(*spod))
 				{
-					spod->SpOrderStatus = TOUCH;
+					spod->SpOrderStatus = SP_TOUCH;
 					SetEvent(spod->OrderStatusChgEvent);
 				}
 			}
 			break;
-		//已触发：按策略配置下单
-		case TOUCH:
+		case SP_TOUCH://已触发：按策略配置下单
 			{
 				//主动腿成交了再报被动腿
 				ComOrder od1 = GetActOrder(*spod);
@@ -108,9 +105,15 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 					od1.Vol,
 					od1.Price-0.4);
 				sprintf_s(spod->pActOrder.OrderRef,"%d",OrderRef);
+				spod->SpOrderStatus = SP_ACT_ORDER;
 			}
 			break;
-		case SPACTFILL:
+		case SP_ACT_ORDER://主动腿已报，待成交
+			{
+				
+			}
+			break;
+		case SP_ACT_FILL://主动腿已成交
 			{
 				//主动腿全部成交，被动腿报单
 				ComOrder od2 = GetPasOrder(*spod);
@@ -122,19 +125,25 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 				sprintf_s(spod->pPasOrder.OrderRef, "%d", OrderRef);
 			}
 			break;
-		//全部成交/撤单：单子执行完毕，退出线程
 
-		case SPALLFILL:
-		{
-						printf("switch线程结束");
-						return;
-		}
-		case CANCEL:return;
+		case SP_PAS_ORDER://被动腿已报，待成交
+			{
+				
+			}
+			break;
+		case SP_PAS_FILL://被动腿已成交
+			{}
+			break;
+
+		//全部成交/撤单：单子执行完毕，退出线程
+		case SP_ALL_FILL:return;
+		case SP_CANCEL:return;
 		}
 		WaitForSingleObject(spod->OrderStatusChgEvent, INFINITE);
 	}
 }
 
+//根据合约的持仓，校验开平仓字段
 char SpStgyExec::CheckOrderOffset(ComOrder od)
 {
 	int NetOpenInt = m_InstPos[od.Inst];
@@ -146,6 +155,7 @@ char SpStgyExec::CheckOrderOffset(ComOrder od)
 		return THOST_FTDC_OF_Close;
 }
 
+//价差单拆成主动腿单
 ComOrder SpStgyExec::GetActOrder(CtpSpOrder spod)
 {
 	ComOrder od;
@@ -157,6 +167,7 @@ ComOrder SpStgyExec::GetActOrder(CtpSpOrder spod)
 	od.Offset = CheckOrderOffset(od);
 	return od;
 }
+//价差单拆成被动腿单
 ComOrder SpStgyExec::GetPasOrder(CtpSpOrder spod)
 {
 	ComOrder od;
@@ -264,7 +275,7 @@ void SpStgyExec::OnCtpRtnOrder(CThostFtdcOrderField* pOrder)
 			
 			if (pOrder->OrderStatus == THOST_FTDC_OST_AllTraded)
 			{
-				m_vAllSpOd[i].SpOrderStatus = SPACTFILL;
+				m_vAllSpOd[i].SpOrderStatus = SP_ACT_FILL;
 				SetEvent(m_vAllSpOd[i].OrderStatusChgEvent);
 			}
 			//同个时刻只能有一个OrderAdapter在执行，保证策略端能顺序接收回报
@@ -282,7 +293,7 @@ void SpStgyExec::OnCtpRtnOrder(CThostFtdcOrderField* pOrder)
 
 				if (pOrder->OrderStatus == THOST_FTDC_OST_AllTraded)
 				{
-					m_vAllSpOd[i].SpOrderStatus = SPALLFILL;
+					m_vAllSpOd[i].SpOrderStatus = SP_ACT_FILL;
 					SetEvent(m_vAllSpOd[i].OrderStatusChgEvent);
 				}
 				EnterCriticalSection(&m_cs);
@@ -314,7 +325,7 @@ void SpStgyExec::OnOrder(CtpSpOrder CtpSpOrder)
 void SpStgyExec::SendSpOrder(CtpSpOrder spod)
 {
 	EnterCriticalSection(&m_cs);
-	spod.SpOrderStatus = NOTTOUCH;
+	spod.SpOrderStatus = SP_NOTTOUCH;
 	spod.OrderStatusChgEvent = CreateEvent(NULL, false, true, NULL);
 	m_qSpOrder.push(spod);
 	LeaveCriticalSection(&m_cs);
@@ -352,4 +363,13 @@ void SpStgyExec::RegisterExec(SpreadStgy* pSpStgy)
 void SpStgyExec::UpdateStgyCfg(StgyConfig* aStygCfg)
 {
 	m_MyStgyCfg = *aStygCfg;
+}
+
+vector<CThostFtdcInvestorPositionField> SpStgyExec::GetCTPCurPosition()
+{
+	return pTdSpi->ReqQryIvstPosition();
+}
+CThostFtdcTradingAccountField SpStgyExec::GetCTPCurAccoutMoney()
+{
+	return pTdSpi->ReqQryTradingAccount();
 }
