@@ -117,17 +117,20 @@ void SpreadStgy::Init()
 	vector<CThostFtdcInvestorPositionField> tmp = m_thisSpExec->GetCTPCurPosition();
 	Sleep(1000);
 	CThostFtdcTradingAccountField t = m_thisSpExec->GetCTPCurAccoutMoney();
+
+	m_thisSpExec->SubMarketData(m_MyStgyCfg);
 }
 void SpreadStgy::RtnConnect(){}
 
 int i=1;
+int ordRef;
 
 void SpreadStgy::RtnTick(SpTick spt)
 {
 	printf("sp=%f,spb1p=%f,spa1p=%f,spb1v=%d,spa1v=%d\n",
 			spt.Spread,spt.SpreadBid1P,spt.SpreadAsk1P,spt.SpreadBid1V,spt.SpreadAsk1V);
 	i++;
-	if (i%40==0)
+	if (i==20)
 	{
 		CtpSpOrder spod;
 		spod.OrderAction = SendOrder;
@@ -135,7 +138,12 @@ void SpreadStgy::RtnTick(SpTick spt)
 		spod.Direction = THOST_FTDC_D_Buy;
 		spod.SpOrderRef = i;
 		spod.Vol = 1;
-		this->m_thisSpExec->SendSpOrder(spod);
+		m_thisSpExec->SendSpOrder(spod);
+		ordRef = spod.SpOrderRef;
+	}
+	if (i==40)
+	{
+		m_thisSpExec->CancelSpOrder(ordRef);
 	}
 }
 void SpreadStgy::RtnOrderFill(CtpSpOrder od){}

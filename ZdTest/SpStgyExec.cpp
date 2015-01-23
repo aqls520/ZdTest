@@ -47,16 +47,20 @@ SpStgyExec::SpStgyExec()
 {
 	InitializeCriticalSection(&m_cs);
 	InitializeCriticalSection(&m_qSpOdCS);
-	m_Event = CreateEvent(NULL, FALSE, TRUE, NULL);
-	m_MDEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
-	m_NewOrderEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
-	InitSpi();
-	_beginthread(OrderWatcher, 0, (LPVOID)this);
 }
 SpStgyExec::~SpStgyExec()
 {
 	DeleteCriticalSection(&m_cs);
 	DeleteCriticalSection(&m_qSpOdCS);
+}
+
+void SpStgyExec::Init()
+{
+	m_Event = CreateEvent(NULL, FALSE, TRUE, NULL);
+	m_MDEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
+	m_NewOrderEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
+	InitSpi();
+	_beginthread(OrderWatcher, 0, (LPVOID)this);
 }
 
 
@@ -72,6 +76,7 @@ void SpStgyExec::InitSpi()
 	pQtSpi = new CtpQtSpi();
 	pQtSpi->RegisterStgyExec(this);
 	pQtSpi->Init();
+
 	//初始化交易接口
 	pTdSpi = new CtpTdSpi();
 	pTdSpi->RegisterStgyExec(this);
@@ -103,7 +108,7 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 					od1.Dir,
 					od1.Offset,
 					od1.Vol,
-					od1.Price-0.4);
+					od1.Price-5.4);
 				sprintf_s(spod->pActOrder.OrderRef,"%d",OrderRef);
 				spod->SpOrderStatus = SP_ACT_ORDER;
 			}
@@ -143,6 +148,15 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 	}
 }
 
+void SpStgyExec::CancelAOrder(CtpSpOrder* pSpod)
+{
+	TThostFtdcInstrumentIDType inst;
+	TThostFtdcOrderRefType orderRef;
+	strcpy(inst, pSpod->pActOrder.InstrumentID);
+	strcpy(orderRef, pSpod->pActOrder.OrderRef);
+	pTdSpi->ReqOrderCancelByOrdRef(inst, orderRef);
+}
+
 //根据合约的持仓，校验开平仓字段
 char SpStgyExec::CheckOrderOffset(ComOrder od)
 {
@@ -179,7 +193,6 @@ ComOrder SpStgyExec::GetPasOrder(CtpSpOrder spod)
 	od.Offset = CheckOrderOffset(od);
 	return od;
 }
-
 
 vector<ComOrder> SpStgyExec::SplitSpOrder(CtpSpOrder spod)
 {
@@ -261,12 +274,14 @@ void SpStgyExec::OnCtpRtnTrade(CThostFtdcTradeField* pTrade)
 		}
 		if (m_vAllSpOd[i].pPasOrder.OrderSysID == pTrade->OrderSysID)
 		{
+
 		}
 	}
 }
 
 void SpStgyExec::OnCtpRtnOrder(CThostFtdcOrderField* pOrder)
 {
+
 	for (size_t i = 0; i < m_vAllSpOd.size(); i++)
 	{
 		if (!strcmp(m_vAllSpOd[i].pActOrder.OrderRef,pOrder->OrderRef))
@@ -306,21 +321,6 @@ void SpStgyExec::OnCtpRtnOrder(CThostFtdcOrderField* pOrder)
 	}
 }
 
-//报单变化了就推给策略
-void SpStgyExec::OnOrder(CtpSpOrder CtpSpOrder)
-{
-	switch (CtpSpOrder.SpOrderStatus)
-	{
-	case ALLFILL:
-	m_SpStgy->RtnOrderFill(CtpSpOrder);
-	break;
-
-
-	default:
-	break;
-	}
-}
-
 
 void SpStgyExec::SendSpOrder(CtpSpOrder spod)
 {
@@ -330,6 +330,35 @@ void SpStgyExec::SendSpOrder(CtpSpOrder spod)
 	m_qSpOrder.push(spod);
 	LeaveCriticalSection(&m_cs);
 	SetEvent(m_NewOrderEvent);
+}
+
+ErrInfo SpStgyExec::CancelSpOrder(int SpOrderRef)
+{
+	ErrInfo ei;
+	for (size_t i = 0; i < m_vAllSpOd.size();i++)
+	{
+		if (m_vAllSpOd[i].SpOrderRef == SpOrderRef)
+		{
+			if (m_vAllSpOd[i].SpOrderStatus < '4')//主动腿未成交，允许撤单
+			{
+				ei.ErrorID = 0;
+				ei.ErrorMsg = "";
+				CancelAOrder(&m_vAllSpOd[i]);
+				return ei;
+			}
+			else
+			{
+				//找到报单，但是至少主动腿已经成交了，此时不允许撤单
+				ei.ErrorID = 2;
+				ei.ErrorMsg = "报单状态不允许进行撤单操作";
+				return ei;
+			}
+		}
+	}
+	//没有找到报单，返回错误码
+	ei.ErrorID = 1;
+	ei.ErrorMsg = "没有找到该价差单，请确认价差报单引用是否错误";
+	return ei;
 }
 
 //订阅合约

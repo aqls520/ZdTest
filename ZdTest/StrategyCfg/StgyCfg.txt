@@ -17,7 +17,7 @@ saveDepth=0
 priceTolerance=0
 
 [PassiveInstrument]
-code=IF1503
+code=IF1502
 exchange=CFFEX
 dir=buy
 orderType=LimitPrice

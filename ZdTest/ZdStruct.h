@@ -576,6 +576,12 @@ struct SpTick
 	int SpreadAsk1V;
 };
 
+struct ErrInfo
+{
+	int ErrorID;
+	string ErrorMsg;
+};
+
 struct CtpSpOrder
 {
 	OrderActionType OrderAction;

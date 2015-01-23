@@ -20,7 +20,6 @@ public:
 	SpStgyExec();
 	~SpStgyExec();
 
-	
 public:
 	//给策略调用的接口
 	void ReqConnect();
@@ -28,8 +27,10 @@ public:
 	void SubMarketData(StgyConfig);
 	void UpLoadStgyCfg(StgyConfig);
 	void SendSpOrder(CtpSpOrder spod);
+	ErrInfo CancelSpOrder(int SpOrderRef);//主动撤单
 	bool CheckOrder(CtpSpOrder spod);
 	void ExecAOrder(CtpSpOrder* pSpod);
+	void CancelAOrder(CtpSpOrder* pSpod);
 	//查询慎用，ctp有流控，1s只能查1次，最好初始化的时候进行查询
 	vector<CThostFtdcInvestorPositionField> GetCTPCurPosition();
 	CThostFtdcTradingAccountField GetCTPCurAccoutMoney();
@@ -39,40 +40,26 @@ public:
 	void OnCtpRtnTrade(CThostFtdcTradeField* pTrade);
 	void OnCtpRtnOrder(CThostFtdcOrderField* pOrder);
 	
+	void Init();//模块初始化
 private:
-	//接口封装初始化
-	void InitSpi();
-
 	
-	//报单变化了就推给策略
-	void OnOrder(CtpSpOrder);
-	
-
-	//报单适配器
-	void OrderAdapter(CtpSpOrder spod);
+	void InitSpi();//接口封装初始化
+	void OrderAdapter(CtpSpOrder spod);//报单适配器
 
 	//价差拆单
 	vector<ComOrder> SplitSpOrder(CtpSpOrder spod);
 	int GetPosition(string Inst);
-
-	//预留接口
-	//策略配置更新
 	void UpdateStgyCfg(StgyConfig* aStygCfg);
-
-	void SetInstCode(StgyConfig* aStygCfg);
 	ComOrder GetActOrder(CtpSpOrder spod);
 	ComOrder GetPasOrder(CtpSpOrder spod);
 	char CheckOrderOffset(ComOrder od);
 public:
 	
-	LPVOID pTradeSpiAct;
-	LPVOID pTradeSpiPas;
 	CtpQtSpi* pQtSpi;
 	CtpTdSpi* pTdSpi;
 	map<string,CThostFtdcDepthMarketDataField> m_mInstTick;
 	SpreadStgy* m_SpStgy;
 	
-	CtpSpOrder m_CurSpOrder;
 	CRITICAL_SECTION m_cs,m_qSpOdCS;
 	
 	SpTick m_curSpTick;
