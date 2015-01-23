@@ -85,6 +85,7 @@
     <ClInclude Include="Lib_dll\ThostFtdcTraderApi.h" />
     <ClInclude Include="Lib_dll\ThostFtdcUserApiDataType.h" />
     <ClInclude Include="Lib_dll\ThostFtdcUserApiStruct.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="SpreadStgy.h" />
     <ClInclude Include="SpStgyExec.h" />
     <ClInclude Include="SpreadMgr.h" />
@@ -100,6 +101,7 @@
   <ItemGroup>
     <ClCompile Include="CtpQtSpi.cpp" />
     <ClCompile Include="CtpTdSpi.cpp" />
+    <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SpreadStgy.cpp" />
     <ClCompile Include="SpStgyExec.cpp" />

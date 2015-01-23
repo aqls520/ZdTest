@@ -60,6 +60,9 @@
     <ClInclude Include="SpreadMgr.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Lib_dll\ShZdTradeLib.lib">
@@ -92,6 +95,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="SpreadMgr.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
