@@ -28,7 +28,7 @@ public:
 	void UpLoadStgyCfg(StgyConfig);
 	void SendSpOrder(CtpSpOrder spod);
 	ErrInfo CancelSpOrder(int SpOrderRef);//主动撤单
-	bool CheckOrder(CtpSpOrder spod);
+	bool CheckOrderTouch(CtpSpOrder spod);
 	void ExecAOrder(CtpSpOrder* pSpod);
 	void CancelAOrder(CtpSpOrder* pSpod);
 	//查询慎用，ctp有流控，1s只能查1次，最好初始化的时候进行查询

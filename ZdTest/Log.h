@@ -15,10 +15,8 @@ enum LOG_LEVEL
 class Log
 {
 public:
-	Log(void)
-	{
-		m_logPath = "log.txt";
-	}
+	Log(void);
+	~Log(void);
 
 	void SetLogPath(string logpath)
 	{

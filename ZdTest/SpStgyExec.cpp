@@ -64,9 +64,33 @@ void SpStgyExec::Init()
 }
 
 
-bool SpStgyExec::CheckOrder(CtpSpOrder spod)
+//检测报单触发条件
+bool SpStgyExec::CheckOrderTouch(CtpSpOrder spod)
 {
-	return true;
+	if (spod.Direction == THOST_FTDC_D_Buy)
+	{
+		//价差校验
+		if (spod.OrderSpread < m_curSpTick.SpreadAsk1P) 
+			return false;
+		//盘口校验:安全深度大于0，跳过最小盘口检测
+		if (m_MyStgyCfg.PassiveInst.saveDepth <= 0) 
+			return true;
+		//检测最小盘口
+		if (m_mInstTick[PassiveInstCode].BidVolume1 < m_MyStgyCfg.PassiveInst.minOrderBookVol)
+			return false;
+	}
+	else
+	{
+		//价差校验
+		if (spod.OrderSpread > m_curSpTick.SpreadBid1P)
+			return false;
+		//盘口校验:安全深度大于0，跳过最小盘口检测
+		if (m_MyStgyCfg.PassiveInst.saveDepth <= 0)
+			return true;
+		//检测最小盘口
+		if (m_mInstTick[PassiveInstCode].AskVolume1 < m_MyStgyCfg.PassiveInst.minOrderBookVol)
+			return false;
+	}
 }
 
 
@@ -93,7 +117,7 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 		{
 		case SP_NOTTOUCH: //未触发：监测行情
 			{
-				if (CheckOrder(*spod))
+				if (CheckOrderTouch(*spod))
 				{
 					spod->SpOrderStatus = SP_TOUCH;
 					SetEvent(spod->OrderStatusChgEvent);

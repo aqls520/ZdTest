@@ -4,6 +4,7 @@
 
 Log::Log(void)
 {
+	m_logPath = "log.txt";
 }
 
 Log::~Log(void)
