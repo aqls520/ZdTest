@@ -18,7 +18,7 @@ void Log::RecordLog(string loginfo)
 	
 	fLog = fopen("log.txt", "a+");
 	fprintf(fLog, "[INFO]%d-%d-%d %d:%d:%d.%d :%s\n", time.wYear, time.wMonth, time.wDay,
-		time.wHour, time.wMinute, time.wSecond, time.wMilliseconds, loginfo);
+		time.wHour, time.wMinute, time.wSecond, time.wMilliseconds, loginfo.c_str());
 	fclose(fLog);
 	
 }

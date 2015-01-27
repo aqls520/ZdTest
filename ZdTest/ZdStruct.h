@@ -550,8 +550,10 @@ struct Instrument
 struct Formula
 {
 	char op;//运算符
+	string mode;//模式：AP=主动-/被动，反之PA
 	double ratio1; //第一系数
 	double ratio2; //第二系数
+	//double intercept;//截距
 };
 
 //策略配置

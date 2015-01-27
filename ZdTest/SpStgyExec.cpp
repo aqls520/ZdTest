@@ -59,6 +59,7 @@ void SpStgyExec::Init()
 	m_Event = CreateEvent(NULL, FALSE, TRUE, NULL);
 	m_MDEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
 	m_NewOrderEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
+	m_log = new Log();
 	InitSpi();
 	_beginthread(OrderWatcher, 0, (LPVOID)this);
 }
@@ -78,6 +79,8 @@ bool SpStgyExec::CheckOrderTouch(CtpSpOrder spod)
 		//检测最小盘口
 		if (m_mInstTick[PassiveInstCode].BidVolume1 < m_MyStgyCfg.PassiveInst.minOrderBookVol)
 			return false;
+		else
+			return true;
 	}
 	else
 	{
@@ -90,6 +93,8 @@ bool SpStgyExec::CheckOrderTouch(CtpSpOrder spod)
 		//检测最小盘口
 		if (m_mInstTick[PassiveInstCode].AskVolume1 < m_MyStgyCfg.PassiveInst.minOrderBookVol)
 			return false;
+		else
+			return true;
 	}
 }
 
@@ -117,10 +122,17 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 		{
 		case SP_NOTTOUCH: //未触发：监测行情
 			{
-				if (CheckOrderTouch(*spod))
+				while (true)
 				{
-					spod->SpOrderStatus = SP_TOUCH;
-					SetEvent(spod->OrderStatusChgEvent);
+					//等待行情变化，校验报单触发条件
+					WaitForSingleObject(m_MDEvent, INFINITE);
+					//校验成功，退出循环，修改报单状态变化
+					if (CheckOrderTouch(*spod))
+					{
+						spod->SpOrderStatus = SP_TOUCH;
+						SetEvent(spod->OrderStatusChgEvent);
+						break;
+					}
 				}
 			}
 			break;
@@ -176,8 +188,10 @@ void SpStgyExec::CancelAOrder(CtpSpOrder* pSpod)
 {
 	TThostFtdcInstrumentIDType inst;
 	TThostFtdcOrderRefType orderRef;
+	printf("%s\n", pSpod->pActOrder.InstrumentID);
 	strcpy(inst, pSpod->pActOrder.InstrumentID);
 	strcpy(orderRef, pSpod->pActOrder.OrderRef);
+	printf("撤单执行\n");
 	pTdSpi->ReqOrderCancelByOrdRef(inst, orderRef);
 }
 
@@ -259,13 +273,112 @@ void SpStgyExec::OrderAdapter(CtpSpOrder spod)
 	}
 }
 
+
+Formula SpStgyExec::ParseMathFormula(string strMathF)
+{
+	Formula f;
+	string ratio;
+	for (unsigned int i = 0; i < strMathF.length();i++)
+	{
+		char c = strMathF[i];
+		if (c == '-' || c == '/')
+		{
+			f.op = c;			
+			continue;
+		}
+		if (c == 'p' && strMathF[i+1] == '1')
+		{
+			f.ratio1 = atof(ratio.c_str());
+			f.mode += 'A';
+			ratio = "";
+			i++;
+			continue;
+		}
+		if (c == 'p' && strMathF[i + 1] == '2')
+		{
+			f.ratio2 = atof(ratio.c_str());
+			f.mode += 'P';
+			ratio = "";
+			i++;
+			continue;
+		}
+		ratio += c;
+	}
+	return f;
+}
+
+SpTick SpStgyExec::CalCurSpTick()
+{
+	SpTick spt;
+	Formula f;
+	f = m_SpStgy->m_MyStgyCfg.StgyFormula;
+	if (f.op == '-')
+	{
+		if (f.mode == "AP")
+		{
+			spt.Spread = f.ratio1*m_mInstTick[ActiveInstCode].LastPrice - f.ratio2*m_mInstTick[PassiveInstCode].LastPrice;
+			spt.SpreadAsk1P = f.ratio1*m_mInstTick[ActiveInstCode].AskPrice1 - f.ratio2*m_mInstTick[PassiveInstCode].BidPrice1;
+			spt.SpreadBid1P = f.ratio1*m_mInstTick[ActiveInstCode].BidPrice1 - f.ratio2*m_mInstTick[PassiveInstCode].AskPrice1;
+			spt.SpreadAsk1V = m_mInstTick[ActiveInstCode].AskVolume1 > m_mInstTick[PassiveInstCode].BidVolume1 ?
+				m_mInstTick[PassiveInstCode].BidVolume1 : m_mInstTick[ActiveInstCode].AskVolume1;
+			spt.SpreadBid1V = m_mInstTick[ActiveInstCode].BidVolume1 > m_mInstTick[PassiveInstCode].AskVolume1 ?
+				m_mInstTick[PassiveInstCode].AskVolume1 : m_mInstTick[ActiveInstCode].BidVolume1;
+
+			return spt;
+		}
+		if (f.mode == "PA")
+		{
+			spt.Spread = f.ratio2*m_mInstTick[PassiveInstCode].LastPrice - f.ratio1*m_mInstTick[ActiveInstCode].LastPrice;
+			spt.SpreadAsk1P = f.ratio2*m_mInstTick[PassiveInstCode].AskPrice1 - f.ratio1*m_mInstTick[ActiveInstCode].BidPrice1;
+			spt.SpreadBid1P = f.ratio2*m_mInstTick[PassiveInstCode].BidPrice1 - f.ratio1*m_mInstTick[ActiveInstCode].AskPrice1;
+			spt.SpreadAsk1V = m_mInstTick[PassiveInstCode].AskVolume1 > m_mInstTick[ActiveInstCode].BidVolume1 ?
+				m_mInstTick[ActiveInstCode].BidVolume1 : m_mInstTick[PassiveInstCode].AskVolume1;
+			spt.SpreadBid1V = m_mInstTick[PassiveInstCode].BidVolume1 > m_mInstTick[ActiveInstCode].AskVolume1 ?
+				m_mInstTick[ActiveInstCode].AskVolume1 : m_mInstTick[PassiveInstCode].BidVolume1;
+
+			return spt;
+		}
+		
+	}
+	if (f.op == '/')
+	{
+		if (f.mode == "AP")
+		{
+			spt.Spread = f.ratio1*m_mInstTick[ActiveInstCode].LastPrice / f.ratio2*m_mInstTick[PassiveInstCode].LastPrice;
+			spt.SpreadAsk1P = f.ratio1*m_mInstTick[ActiveInstCode].AskPrice1 / f.ratio2*m_mInstTick[PassiveInstCode].BidPrice1;
+			spt.SpreadBid1P = f.ratio1*m_mInstTick[ActiveInstCode].BidPrice1 / f.ratio2*m_mInstTick[PassiveInstCode].AskPrice1;
+			spt.SpreadAsk1V = m_mInstTick[ActiveInstCode].AskVolume1 > m_mInstTick[PassiveInstCode].BidVolume1 ?
+				m_mInstTick[PassiveInstCode].BidVolume1 : m_mInstTick[ActiveInstCode].AskVolume1;
+			spt.SpreadBid1V = m_mInstTick[ActiveInstCode].BidVolume1 > m_mInstTick[PassiveInstCode].AskVolume1 ?
+				m_mInstTick[PassiveInstCode].AskVolume1 : m_mInstTick[ActiveInstCode].BidVolume1;
+
+			return spt;
+		}
+		if (f.mode == "PA")
+		{
+			spt.Spread = f.ratio2*m_mInstTick[PassiveInstCode].LastPrice / f.ratio1*m_mInstTick[ActiveInstCode].LastPrice;
+			spt.SpreadAsk1P = f.ratio2*m_mInstTick[PassiveInstCode].AskPrice1 / f.ratio1*m_mInstTick[ActiveInstCode].BidPrice1;
+			spt.SpreadBid1P = f.ratio2*m_mInstTick[PassiveInstCode].BidPrice1 / f.ratio1*m_mInstTick[ActiveInstCode].AskPrice1;
+			spt.SpreadAsk1V = m_mInstTick[PassiveInstCode].AskVolume1 > m_mInstTick[ActiveInstCode].BidVolume1 ?
+				m_mInstTick[ActiveInstCode].BidVolume1 : m_mInstTick[PassiveInstCode].AskVolume1;
+			spt.SpreadBid1V = m_mInstTick[PassiveInstCode].BidVolume1 > m_mInstTick[ActiveInstCode].AskVolume1 ?
+				m_mInstTick[ActiveInstCode].AskVolume1 : m_mInstTick[PassiveInstCode].BidVolume1;
+
+			return spt;
+		}
+	}
+	return spt;
+}
+
 //行情推给策略
 void SpStgyExec::OnCtpRtnTick(CThostFtdcDepthMarketDataField *pDepthMarketData)
 {
 	//数据存储
 	m_mInstTick[pDepthMarketData->InstrumentID] = *pDepthMarketData;
 
-	//数据计算
+	SpTick spt = CalCurSpTick();
+
+	/*//数据计算
 	SpTick spt;
 	spt.Spread = m_mInstTick[ActiveInstCode].LastPrice -
 		m_mInstTick[PassiveInstCode].LastPrice;
@@ -277,6 +390,7 @@ void SpStgyExec::OnCtpRtnTick(CThostFtdcDepthMarketDataField *pDepthMarketData)
 		m_mInstTick[PassiveInstCode].BidVolume1 : m_mInstTick[ActiveInstCode].AskVolume1;
 	spt.SpreadBid1V = m_mInstTick[ActiveInstCode].BidVolume1 > m_mInstTick[PassiveInstCode].AskVolume1 ?
 		m_mInstTick[PassiveInstCode].AskVolume1 : m_mInstTick[ActiveInstCode].BidVolume1;
+*/
 
 	//数据处理
 	m_curSpTick = spt;
@@ -305,13 +419,14 @@ void SpStgyExec::OnCtpRtnTrade(CThostFtdcTradeField* pTrade)
 
 void SpStgyExec::OnCtpRtnOrder(CThostFtdcOrderField* pOrder)
 {
-
+	m_log->RecordLog("return order");
 	for (size_t i = 0; i < m_vAllSpOd.size(); i++)
 	{
 		if (!strcmp(m_vAllSpOd[i].pActOrder.OrderRef,pOrder->OrderRef))
 		{
-			m_vAllSpOd[i].pActOrder = *pOrder;
 			
+			m_vAllSpOd[i].pActOrder = *pOrder;
+			m_log->RecordLog("copy");
 			if (pOrder->OrderStatus == THOST_FTDC_OST_AllTraded)
 			{
 				m_vAllSpOd[i].SpOrderStatus = SP_ACT_FILL;
@@ -367,6 +482,8 @@ ErrInfo SpStgyExec::CancelSpOrder(int SpOrderRef)
 			{
 				ei.ErrorID = 0;
 				ei.ErrorMsg = "";
+				printf("发出撤单指令\n");
+				m_log->RecordLog("cancel");
 				CancelAOrder(&m_vAllSpOd[i]);
 				return ei;
 			}

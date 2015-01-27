@@ -5,6 +5,7 @@
 #include <vector>
 #include <queue>
 #include <windows.h>
+#include "Log.h"
 using namespace std;
 
 typedef void* LPVOID;
@@ -26,6 +27,7 @@ public:
 	void RegisterExec(SpreadStgy* pSpStgy);
 	void SubMarketData(StgyConfig);
 	void UpLoadStgyCfg(StgyConfig);
+	Formula ParseMathFormula(string strMathF);
 	void SendSpOrder(CtpSpOrder spod);
 	ErrInfo CancelSpOrder(int SpOrderRef);//主动撤单
 	bool CheckOrderTouch(CtpSpOrder spod);
@@ -45,7 +47,7 @@ private:
 	
 	void InitSpi();//接口封装初始化
 	void OrderAdapter(CtpSpOrder spod);//报单适配器
-
+	SpTick CalCurSpTick();//根据公式，计算当前tick
 	//价差拆单
 	vector<ComOrder> SplitSpOrder(CtpSpOrder spod);
 	int GetPosition(string Inst);
@@ -73,6 +75,6 @@ public:
 	HANDLE m_Event, m_MDEvent,m_NewOrderEvent;
 	StgyConfig m_MyStgyCfg;
 	queue<CtpSpOrder> m_qSpOrder;
-
+	Log* m_log;
 };
 
