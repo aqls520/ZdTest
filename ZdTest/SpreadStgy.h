@@ -27,7 +27,7 @@ private:
 public:
  	StgyConfig m_MyStgyCfg;
  	SpStgyExec* m_thisSpExec;
-	
-	
+	vector<SpTick> m_vSpTickL;
+	double sp_high, sp_low;
 };
 

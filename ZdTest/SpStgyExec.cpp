@@ -68,6 +68,7 @@ void SpStgyExec::Init()
 //检测报单触发条件
 bool SpStgyExec::CheckOrderTouch(CtpSpOrder spod)
 {
+	return true;
 	if (spod.Direction == THOST_FTDC_D_Buy)
 	{
 		//价差校验
@@ -129,6 +130,7 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 					//校验成功，退出循环，修改报单状态变化
 					if (CheckOrderTouch(*spod))
 					{
+						printf("触发");
 						spod->SpOrderStatus = SP_TOUCH;
 						SetEvent(spod->OrderStatusChgEvent);
 						break;
@@ -144,14 +146,15 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 					od1.Dir,
 					od1.Offset,
 					od1.Vol,
-					od1.Price-5.4);
+					od1.Price);
 				sprintf_s(spod->pActOrder.OrderRef,"%d",OrderRef);
 				spod->SpOrderStatus = SP_ACT_ORDER;
+				SetEvent(spod->OrderStatusChgEvent);
 			}
 			break;
 		case SP_ACT_ORDER://主动腿已报，待成交
 			{
-				
+				printf("主动腿已报，待成交:%c\n", spod->SpOrderStatus);
 			}
 			break;
 		case SP_ACT_FILL://主动腿已成交
@@ -162,19 +165,35 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 					od2.Dir,
 					od2.Offset,
 					od2.Vol,
-					od2.Price);
+					od2.Dir == '0' ? od2.Price - 2 : od2.Price + 2);
 				sprintf_s(spod->pPasOrder.OrderRef, "%d", OrderRef);
+				spod->SpOrderStatus = SP_PAS_ORDER;
+				SetEvent(spod->OrderStatusChgEvent);
 			}
 			break;
 
 		case SP_PAS_ORDER://被动腿已报，待成交
 			{
-				
+				//可以添加对未成交单子的判断
+				Sleep(5000);
+				if (spod->SpOrderStatus == SP_PAS_ORDER)
+				{
+					pTdSpi->ReqOrderCancelByOrdRef(spod->pPasOrder.InstrumentID, spod->pPasOrder.OrderRef);
+				}
+				while (spod->pPasOrder.OrderStatus != THOST_FTDC_OST_Canceled)
+				{}
+				//撤单成功，重新报单
+				int OrderRef = pTdSpi->ReqOrdLimit(spod->pPasOrder.InstrumentID,
+					spod->pPasOrder.Direction,
+					spod->pPasOrder.CombOffsetFlag[0],
+					spod->pPasOrder.VolumeTotal,
+					spod->pPasOrder.Direction == '0' ? spod->pPasOrder.LimitPrice + 5 : spod->pPasOrder.LimitPrice - 5);
+				sprintf_s(spod->pPasOrder.OrderRef, "%d", OrderRef);
+				spod->SpOrderStatus = SP_PAS_ORDER;
 			}
 			break;
 		case SP_PAS_FILL://被动腿已成交
-			{}
-			break;
+			return;
 
 		//全部成交/撤单：单子执行完毕，退出线程
 		case SP_ALL_FILL:return;
@@ -198,6 +217,7 @@ void SpStgyExec::CancelAOrder(CtpSpOrder* pSpod)
 //根据合约的持仓，校验开平仓字段
 char SpStgyExec::CheckOrderOffset(ComOrder od)
 {
+	return THOST_FTDC_OF_Open;
 	int NetOpenInt = m_InstPos[od.Inst];
 	int OrderDir = (od.Dir == THOST_FTDC_D_Buy) ? 1 : -1;
 	//同向为开仓，反向为平仓
@@ -447,13 +467,12 @@ void SpStgyExec::OnCtpRtnOrder(CThostFtdcOrderField* pOrder)
 
 				if (pOrder->OrderStatus == THOST_FTDC_OST_AllTraded)
 				{
-					m_vAllSpOd[i].SpOrderStatus = SP_ACT_FILL;
+					m_vAllSpOd[i].SpOrderStatus = SP_PAS_FILL;
 					SetEvent(m_vAllSpOd[i].OrderStatusChgEvent);
 				}
 				EnterCriticalSection(&m_cs);
 				OrderAdapter(m_vAllSpOd[i]);
 				LeaveCriticalSection(&m_cs);
-
 				break;
 			}
 		}
@@ -466,6 +485,8 @@ void SpStgyExec::SendSpOrder(CtpSpOrder spod)
 	EnterCriticalSection(&m_cs);
 	spod.SpOrderStatus = SP_NOTTOUCH;
 	spod.OrderStatusChgEvent = CreateEvent(NULL, false, true, NULL);
+	strcpy(spod.pActOrder.InstrumentID, ActiveInstCode.c_str());
+	strcpy(spod.pPasOrder.InstrumentID, PassiveInstCode.c_str());
 	m_qSpOrder.push(spod);
 	LeaveCriticalSection(&m_cs);
 	SetEvent(m_NewOrderEvent);

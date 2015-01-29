@@ -23,6 +23,8 @@ void SpreadStgy::LoadStgyCfg(char* cfgpath)
 		getline(fin, cfgdata);
 		if (cfgdata.length() < 1)
 			continue;
+		if (cfgdata.substr(0,2) == "//")
+			continue;
 		if (!strcmp("[Main]",cfgdata.c_str()))
 		{
 			section = "main";
@@ -120,32 +122,58 @@ void SpreadStgy::Init()
 	CThostFtdcTradingAccountField t = m_thisSpExec->GetCTPCurAccoutMoney();
 
 	m_thisSpExec->SubMarketData(m_MyStgyCfg);
+
+	sp_high = 0;
+	sp_low = 1000;
 }
 void SpreadStgy::RtnConnect(){}
 
 int i=1;
-int ordRef;
+int ordRef = 1;
 
 void SpreadStgy::RtnTick(SpTick spt)
 {
-	printf("sp=%f,spb1p=%f,spa1p=%f,spb1v=%d,spa1v=%d\n",
-			spt.Spread,spt.SpreadBid1P,spt.SpreadAsk1P,spt.SpreadBid1V,spt.SpreadAsk1V);
-	i++;
-	/*if (i==10)
+	/*printf("sp=%f,spb1p=%f,spa1p=%f,spb1v=%d,spa1v=%d\n",
+			spt.Spread,spt.SpreadBid1P,spt.SpreadAsk1P,spt.SpreadBid1V,spt.SpreadAsk1V);*/
+	if (spt.Spread > 1000)
+		return;
+
+	m_vSpTickL.push_back(spt);
+
+	if (i<=10)
 	{
+		sp_high = sp_high > spt.Spread ? sp_high : spt.Spread;
+		sp_low = sp_low < spt.Spread ? sp_low : spt.Spread;
+		i++;
+		return;
+	}
+
+	if (spt.Spread > sp_high)
+	{
+		printf("high=%f,sp=%f\n", sp_high, spt.Spread);
+		CtpSpOrder spod;
+		spod.OrderAction = SendOrder;
+		spod.OrderSpread = spt.Spread;
+		spod.Direction = THOST_FTDC_D_Sell;
+		spod.SpOrderRef = ordRef++;
+		spod.Vol = 1;
+		m_thisSpExec->SendSpOrder(spod);
+		sp_high = 1000;
+		return;
+	}
+	if (spt.Spread < sp_low)
+	{
+		printf("low=%f,sp=%f\n", sp_low, spt.Spread);
 		CtpSpOrder spod;
 		spod.OrderAction = SendOrder;
 		spod.OrderSpread = spt.Spread;
 		spod.Direction = THOST_FTDC_D_Buy;
-		spod.SpOrderRef = i;
+		spod.SpOrderRef = ordRef++;
 		spod.Vol = 1;
 		m_thisSpExec->SendSpOrder(spod);
-		ordRef = spod.SpOrderRef;
+		sp_low = 0;
+		return;
 	}
-	if (i==20)
-	{
-		m_thisSpExec->CancelSpOrder(ordRef);
-	}*/
 }
 void SpreadStgy::RtnOrderFill(CtpSpOrder od){}
 void SpreadStgy::RtnOrderCancel(CtpSpOrder od){}

@@ -594,7 +594,6 @@ struct CtpSpOrder
 	int SpOrderRef;//价差报单引用
 	SpreadOrderStatus SpOrderStatus;//价差报单状态
 	HANDLE OrderStatusChgEvent;//报单状态变化事件
-
 	//主动腿报单信息
 	CThostFtdcOrderField pActOrder;
 	//被动腿报单信息
