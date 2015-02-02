@@ -15,7 +15,6 @@ public:
 
 public:
 	void Init();
-	void RtnConnect();
 	void RtnTick(SpTick);
 	void RtnOrderFill(CtpSpOrder od);
 	void RtnOrderCancel(CtpSpOrder od);
@@ -25,8 +24,8 @@ private:
 	void LoadStgyCfg(char* cfgpath);
 
 public:
- 	StgyConfig m_MyStgyCfg;
- 	SpStgyExec* m_thisSpExec;
+ 	StgyConfig m_StgyCfg;
+ 	SpStgyExec* m_SpSE;
 	vector<SpTick> m_vSpTickL;
 	double sp_high, sp_low;
 };

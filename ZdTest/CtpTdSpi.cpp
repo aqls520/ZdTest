@@ -98,9 +98,8 @@ void CtpTdSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoFiel
 ///请求查询投资者持仓响应
 void CtpTdSpi::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestorPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-	if (!pInvestorPosition) 
-		return;
-	m_vPosition.push_back(*pInvestorPosition);
+	if (pInvestorPosition) 
+		m_vPosition.push_back(*pInvestorPosition);	
 	if (bIsLast)
 		SetEvent(m_Event);
 }

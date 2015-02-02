@@ -31,7 +31,7 @@ code=IF1502
 //交易所
 exchange=CFFEX
 //方向：1买2卖
-dir=buy
+dir=1
 //下单类型：1限价2市价
 orderType=1
 //模式：1主动0被动

@@ -44,15 +44,15 @@ void SpreadStgy::LoadStgyCfg(char* cfgpath)
 			string key = cfgdata.substr(idx_begin, idx_split);
 			string keyvalue = cfgdata.substr(idx_split + 1, cfgdata.length());
 			if (key == "StgyCode")
-				m_MyStgyCfg.StgyCode = keyvalue;
+				m_StgyCfg.StgyCode = keyvalue;
 			if (key == "StgyName")
-				m_MyStgyCfg.StgyName = keyvalue;
+				m_StgyCfg.StgyName = keyvalue;
 			if (key == "Formula")
-				m_MyStgyCfg.strStgyFormula = keyvalue;
+				m_StgyCfg.strStgyFormula = keyvalue;
 			if (key == "PriceTick")
-				m_MyStgyCfg.PriceTick = atof(keyvalue.c_str());
+				m_StgyCfg.PriceTick = atof(keyvalue.c_str());
 			if (key == "ActiveBatchVol")
-				m_MyStgyCfg.ActiveBatchVol = atoi(keyvalue.c_str());
+				m_StgyCfg.ActiveBatchVol = atoi(keyvalue.c_str());
 		}
 
 		if (section == "ActiveInstrument")
@@ -61,23 +61,23 @@ void SpreadStgy::LoadStgyCfg(char* cfgpath)
 			string key = cfgdata.substr(idx_begin, idx_split);
 			string keyvalue = cfgdata.substr(idx_split + 1, cfgdata.length());
 			if (key == "code")
-				m_MyStgyCfg.ActiveInst.code = keyvalue;
+				m_StgyCfg.ActiveInst.code = keyvalue;
 			if (key == "exchange")
-				m_MyStgyCfg.ActiveInst.exchange = keyvalue;
+				m_StgyCfg.ActiveInst.exchange = keyvalue;
 			if (key == "dir")
-				m_MyStgyCfg.ActiveInst.dir = keyvalue;
+				m_StgyCfg.ActiveInst.dir = keyvalue;
 			if (key == "orderType")
-				m_MyStgyCfg.ActiveInst.orderType = keyvalue;
+				m_StgyCfg.ActiveInst.orderType = keyvalue;
 			if (key == "isActive")
-				m_MyStgyCfg.ActiveInst.isActive = (keyvalue == "1") ? true : false;
+				m_StgyCfg.ActiveInst.isActive = (keyvalue == "1") ? true : false;
 			if (key == "orderVolRatio")
-				m_MyStgyCfg.ActiveInst.orderVolRatio = atof(keyvalue.c_str());
+				m_StgyCfg.ActiveInst.orderVolRatio = atof(keyvalue.c_str());
 			if (key == "minOrderBookVol")
-				m_MyStgyCfg.ActiveInst.minOrderBookVol = atoi(keyvalue.c_str());
+				m_StgyCfg.ActiveInst.minOrderBookVol = atoi(keyvalue.c_str());
 			if (key == "saveDepth")
-				m_MyStgyCfg.ActiveInst.saveDepth = atoi(keyvalue.c_str());
+				m_StgyCfg.ActiveInst.saveDepth = atoi(keyvalue.c_str());
 			if (key == "priceTolerance")
-				m_MyStgyCfg.ActiveInst.priceTolerance = atoi(keyvalue.c_str());
+				m_StgyCfg.ActiveInst.priceTolerance = atoi(keyvalue.c_str());
 			
 		}
 		if (section == "PassiveInstrument")
@@ -86,23 +86,23 @@ void SpreadStgy::LoadStgyCfg(char* cfgpath)
 			string key = cfgdata.substr(idx_begin, idx_split);
 			string keyvalue = cfgdata.substr(idx_split + 1, cfgdata.length());
 			if (key == "code")
-				m_MyStgyCfg.PassiveInst.code = keyvalue;
+				m_StgyCfg.PassiveInst.code = keyvalue;
 			if (key == "exchange")
-				m_MyStgyCfg.PassiveInst.exchange = keyvalue;
+				m_StgyCfg.PassiveInst.exchange = keyvalue;
 			if (key == "dir")
-				m_MyStgyCfg.PassiveInst.dir = keyvalue;
+				m_StgyCfg.PassiveInst.dir = keyvalue;
 			if (key == "orderType")
-				m_MyStgyCfg.PassiveInst.orderType = keyvalue;
+				m_StgyCfg.PassiveInst.orderType = keyvalue;
 			if (key == "isActive")
-				m_MyStgyCfg.PassiveInst.isActive = (keyvalue == "1") ? true : false;
+				m_StgyCfg.PassiveInst.isActive = (keyvalue == "1") ? true : false;
 			if (key == "orderVolRatio")
-				m_MyStgyCfg.PassiveInst.orderVolRatio = atof(keyvalue.c_str());
+				m_StgyCfg.PassiveInst.orderVolRatio = atof(keyvalue.c_str());
 			if (key == "minOrderBookVol")
-				m_MyStgyCfg.PassiveInst.minOrderBookVol = atoi(keyvalue.c_str());
+				m_StgyCfg.PassiveInst.minOrderBookVol = atoi(keyvalue.c_str());
 			if (key == "saveDepth")
-				m_MyStgyCfg.PassiveInst.saveDepth = atoi(keyvalue.c_str());
+				m_StgyCfg.PassiveInst.saveDepth = atoi(keyvalue.c_str());
 			if (key == "priceTolerance")
-				m_MyStgyCfg.PassiveInst.priceTolerance = atoi(keyvalue.c_str());
+				m_StgyCfg.PassiveInst.priceTolerance = atoi(keyvalue.c_str());
 		}
 	}
 	fin.close();
@@ -112,21 +112,20 @@ void SpreadStgy::Init()
 {
 	//加载策略配置
 	LoadStgyCfg("StrategyCfg/StgyCfg.txt");
-	m_MyStgyCfg.StgyFormula = m_thisSpExec->ParseMathFormula(m_MyStgyCfg.strStgyFormula);
+	m_StgyCfg.StgyFormula = m_SpSE->ParseMathFormula(m_StgyCfg.strStgyFormula);
 	//上传策略配置
-	m_thisSpExec->UpLoadStgyCfg(m_MyStgyCfg);
+	m_SpSE->UpLoadStgyCfg(m_StgyCfg);
 
 	//策略初始化-账户信息查询（资金、持仓）
-	vector<CThostFtdcInvestorPositionField> tmp = m_thisSpExec->GetCTPCurPosition();
+	vector<CThostFtdcInvestorPositionField> tmp = m_SpSE->GetCTPCurPosition();
 	Sleep(1000);
-	CThostFtdcTradingAccountField t = m_thisSpExec->GetCTPCurAccoutMoney();
+	CThostFtdcTradingAccountField t = m_SpSE->GetCTPCurAccoutMoney();
 
-	m_thisSpExec->SubMarketData(m_MyStgyCfg);
+	m_SpSE->SubMarketData(m_StgyCfg);
 
 	sp_high = 0;
 	sp_low = 1000;
 }
-void SpreadStgy::RtnConnect(){}
 
 int i=1;
 int ordRef = 1;
@@ -157,8 +156,8 @@ void SpreadStgy::RtnTick(SpTick spt)
 		spod.Direction = THOST_FTDC_D_Sell;
 		spod.SpOrderRef = ordRef++;
 		spod.Vol = 1;
-		m_thisSpExec->SendSpOrder(spod);
-		sp_high = 1000;
+		m_SpSE->SendSpOrder(spod);
+		//sp_high = 1000;
 		return;
 	}
 	if (spt.Spread < sp_low)
@@ -170,8 +169,8 @@ void SpreadStgy::RtnTick(SpTick spt)
 		spod.Direction = THOST_FTDC_D_Buy;
 		spod.SpOrderRef = ordRef++;
 		spod.Vol = 1;
-		m_thisSpExec->SendSpOrder(spod);
-		sp_low = 0;
+		m_SpSE->SendSpOrder(spod);
+		//sp_low = 0;
 		return;
 	}
 }

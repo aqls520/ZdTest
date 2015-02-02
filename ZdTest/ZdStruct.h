@@ -601,22 +601,14 @@ struct CtpSpOrder
 
 };
 
-//持仓信息
-struct SpPosition
+//合约持仓
+struct InstPos
 {
 	string Inst;
 	char Dir;
 	int PosVol;
-};
-
-struct AccountInfo
-{
-	double Balance;
-};
-
-struct Tick
-{
-	int a;
+	int TdPosVol;
+	int YdPosVol;
 };
 
 struct ComOrder

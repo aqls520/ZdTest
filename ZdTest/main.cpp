@@ -3,13 +3,10 @@
 
 void main()
 {
-	SpreadStgy* spstgy = new SpreadStgy();
-	SpStgyExec* pStgyExec = new SpStgyExec();
-	spstgy->m_thisSpExec = pStgyExec;
-	spstgy->m_thisSpExec->RegisterExec(spstgy);
+	SpreadStgy* pSpStgy = new SpreadStgy();
+	SpStgyExec* pStgyExec = new SpStgyExec(pSpStgy);
 	pStgyExec->Init();
-
-	spstgy->Init();
+	pSpStgy->Init();
 
 	getchar();
 }
