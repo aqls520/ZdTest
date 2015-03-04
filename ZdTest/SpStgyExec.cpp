@@ -7,7 +7,7 @@
 struct ExecModule
 {
 	SpStgyExec* pExec;
-	CtpSpOrder* spod;
+	int OrderIndex;
 };
 
 //报单执行模块
@@ -15,11 +15,11 @@ void OrderExecer(LPVOID p)
 {
 	ExecModule* pEM = (ExecModule*)p;
 	//根据策略配置进行报单
-	pEM->pExec->ExecAOrder(pEM->spod);
+	pEM->pExec->ExecAOrder(pEM->OrderIndex);
 }
 
 //以行情为驱动，监测报单触发条件，即如果满足设置，则执行报单
-void OrderWatcher(LPVOID p)
+void OrderListener(LPVOID p)
 {
 	SpStgyExec* pExec = (SpStgyExec*)p;
 	while (true)
@@ -30,7 +30,7 @@ void OrderWatcher(LPVOID p)
 			pExec->m_vAllSpOd.push_back(pExec->m_qSpOrder.front());
 			ExecModule EM;
 			EM.pExec = pExec;
-			EM.spod = &(pExec->m_vAllSpOd.back());
+			EM.OrderIndex = pExec->m_vAllSpOd.size()-1;
 			_beginthread(OrderExecer, 0, (LPVOID)&EM);
 			EnterCriticalSection(&pExec->m_qSpOdCS);
 			pExec->m_qSpOrder.pop();
@@ -59,29 +59,27 @@ SpStgyExec::~SpStgyExec()
 }
 void SpStgyExec::Init()
 {
-	InitializeCriticalSection(&m_cs);
-	InitializeCriticalSection(&m_qSpOdCS);
 	m_Event = CreateEvent(NULL, FALSE, TRUE, NULL);
 	m_MDEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
 	m_NewOrderEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
 	m_log = new Log();
 	InitSpi();
-	_beginthread(OrderWatcher, 0, (LPVOID)this);
+	_beginthread(OrderListener, 0, (LPVOID)this);
 }
 //检测报单触发条件
 bool SpStgyExec::CheckOrderTouch(CtpSpOrder spod)
 {
-	return true;
+	StgyConfig tStgyCfg = spod.Stgycfg;
 	if (spod.Direction == THOST_FTDC_D_Buy)
 	{
 		//价差校验
 		if (spod.OrderSpread < m_curSpTick.SpreadAsk1P) 
 			return false;
 		//盘口校验:安全深度大于0，跳过最小盘口检测
-		if (m_StgyCfg.PassiveInst.saveDepth <= 0) 
+		if (tStgyCfg.PassiveInst.saveDepth <= 0)
 			return true;
 		//检测最小盘口
-		if (m_mInstTick[PasInstCode].BidVolume1 < m_StgyCfg.PassiveInst.minOrderBookVol)
+		if (m_mInstTick[PasInstCode].BidVolume1 < tStgyCfg.PassiveInst.minOrderBookVol)
 			return false;
 		else
 			return true;
@@ -92,10 +90,10 @@ bool SpStgyExec::CheckOrderTouch(CtpSpOrder spod)
 		if (spod.OrderSpread > m_curSpTick.SpreadBid1P)
 			return false;
 		//盘口校验:安全深度大于0，跳过最小盘口检测
-		if (m_StgyCfg.PassiveInst.saveDepth <= 0)
+		if (tStgyCfg.PassiveInst.saveDepth <= 0)
 			return true;
 		//检测最小盘口
-		if (m_mInstTick[PasInstCode].AskVolume1 < m_StgyCfg.PassiveInst.minOrderBookVol)
+		if (m_mInstTick[PasInstCode].AskVolume1 < tStgyCfg.PassiveInst.minOrderBookVol)
 			return false;
 		else
 			return true;
@@ -118,11 +116,15 @@ void SpStgyExec::InitSpi()
 }
 
 //报单具体执行
-void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
+void SpStgyExec::ExecAOrder(int OrderIdx)
 {
+	//获取策略配置
+	StgyConfig tStgyCfg = m_vAllSpOd[OrderIdx].Stgycfg;
+	vector<ComOrder> tActOrdList, tPasOrdList;
+
 	while (true)
 	{
-		switch (spod->SpOrderStatus)
+		switch (m_vAllSpOd[OrderIdx].SpOrderStatus)
 		{
 		case SP_NOTTOUCH: //未触发：监测行情
 			{
@@ -130,12 +132,13 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 				{
 					//等待行情变化，校验报单触发条件
 					WaitForSingleObject(m_MDEvent, INFINITE);
+
 					//校验成功，退出循环，修改报单状态变化
-					if (CheckOrderTouch(*spod))
+					if (CheckOrderTouch(m_vAllSpOd[OrderIdx]))
 					{
 						printf("触发");
-						spod->SpOrderStatus = SP_TOUCH;
-						SetEvent(spod->OrderStatusChgEvent);
+						m_vAllSpOd[OrderIdx].SpOrderStatus = SP_TOUCH;
+						SetEvent(m_vAllSpOd[OrderIdx].OrderStatusChgEvent);
 						break;
 					}
 				}
@@ -143,35 +146,35 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 			break;
 		case SP_TOUCH://已触发：按策略配置下单
 			{
-				//主动腿成交了再报被动腿
-				ComOrder od1 = GetActOrder(*spod);
+				//先报主动
+				ComOrder od1 = GetActOrder(m_vAllSpOd[OrderIdx]);
 				int OrderRef = pTdSpi->ReqOrdLimit((char*)od1.Inst.c_str(),
 					od1.Dir,
 					od1.Offset,
 					od1.Vol,
 					od1.Price);
-				sprintf_s(spod->pActOrder.OrderRef,"%d",OrderRef);
-				spod->SpOrderStatus = SP_ACT_ORDER;
-				SetEvent(spod->OrderStatusChgEvent);
+				sprintf_s(m_vAllSpOd[OrderIdx].pActOrder.OrderRef,"%d",OrderRef);
+				m_vAllSpOd[OrderIdx].SpOrderStatus = SP_ACT_ORDER;
+				SetEvent(m_vAllSpOd[OrderIdx].OrderStatusChgEvent);
 			}
 			break;
 		case SP_ACT_ORDER://主动腿已报，待成交
 			{
-				printf("主动腿已报，待成交:%c\n", spod->SpOrderStatus);
+				printf("主动腿已报，待成交:%c\n", m_vAllSpOd[OrderIdx].SpOrderStatus);
 			}
 			break;
 		case SP_ACT_FILL://主动腿已成交
 			{
 				//主动腿全部成交，被动腿报单
-				ComOrder od2 = GetPasOrder(*spod);
+				ComOrder od2 = GetPasOrder(m_vAllSpOd[OrderIdx]);
 				int OrderRef = pTdSpi->ReqOrdLimit((char*)od2.Inst.c_str(),
 					od2.Dir,
 					od2.Offset,
 					od2.Vol,
 					od2.Dir == '0' ? od2.Price - 2 : od2.Price + 2);
-				sprintf_s(spod->pPasOrder.OrderRef, "%d", OrderRef);
-				spod->SpOrderStatus = SP_PAS_ORDER;
-				SetEvent(spod->OrderStatusChgEvent);
+				sprintf_s(m_vAllSpOd[OrderIdx].pPasOrder.OrderRef, "%d", OrderRef);
+				m_vAllSpOd[OrderIdx].SpOrderStatus = SP_PAS_ORDER;
+				SetEvent(m_vAllSpOd[OrderIdx].OrderStatusChgEvent);
 			}
 			break;
 
@@ -179,20 +182,20 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 			{
 				//可以添加对未成交单子的判断
 				Sleep(5000);
-				if (spod->SpOrderStatus == SP_PAS_ORDER)
+				if (m_vAllSpOd[OrderIdx].SpOrderStatus == SP_PAS_ORDER)
 				{
-					pTdSpi->ReqOrderCancelByOrdRef(spod->pPasOrder.InstrumentID, spod->pPasOrder.OrderRef);
+					pTdSpi->ReqOrderCancelByOrdRef(m_vAllSpOd[OrderIdx].pPasOrder.InstrumentID, m_vAllSpOd[OrderIdx].pPasOrder.OrderRef);
 				}
-				while (spod->pPasOrder.OrderStatus != THOST_FTDC_OST_Canceled)
+				while (m_vAllSpOd[OrderIdx].pPasOrder.OrderStatus != THOST_FTDC_OST_Canceled)
 				{}
 				//撤单成功，重新报单
-				int OrderRef = pTdSpi->ReqOrdLimit(spod->pPasOrder.InstrumentID,
-					spod->pPasOrder.Direction,
-					spod->pPasOrder.CombOffsetFlag[0],
-					spod->pPasOrder.VolumeTotal,
-					spod->pPasOrder.Direction == '0' ? spod->pPasOrder.LimitPrice + 5 : spod->pPasOrder.LimitPrice - 5);
-				sprintf_s(spod->pPasOrder.OrderRef, "%d", OrderRef);
-				spod->SpOrderStatus = SP_PAS_ORDER;
+				int OrderRef = pTdSpi->ReqOrdLimit(m_vAllSpOd[OrderIdx].pPasOrder.InstrumentID,
+					m_vAllSpOd[OrderIdx].pPasOrder.Direction,
+					m_vAllSpOd[OrderIdx].pPasOrder.CombOffsetFlag[0],
+					m_vAllSpOd[OrderIdx].pPasOrder.VolumeTotal,
+					m_vAllSpOd[OrderIdx].pPasOrder.Direction == '0' ? m_vAllSpOd[OrderIdx].pPasOrder.LimitPrice + 5 : m_vAllSpOd[OrderIdx].pPasOrder.LimitPrice - 5);
+				sprintf_s(m_vAllSpOd[OrderIdx].pPasOrder.OrderRef, "%d", OrderRef);
+				m_vAllSpOd[OrderIdx].SpOrderStatus = SP_PAS_ORDER;
 			}
 			break;
 		case SP_PAS_FILL://被动腿已成交
@@ -202,7 +205,7 @@ void SpStgyExec::ExecAOrder(CtpSpOrder* spod)
 		case SP_ALL_FILL:return;
 		case SP_CANCEL:return;
 		}
-		WaitForSingleObject(spod->OrderStatusChgEvent, INFINITE);
+		WaitForSingleObject(m_vAllSpOd[OrderIdx].OrderStatusChgEvent, INFINITE);
 	}
 }
 
@@ -239,11 +242,13 @@ char SpStgyExec::CheckOrderOffset(ComOrder od)
 ComOrder SpStgyExec::GetActOrder(CtpSpOrder spod)
 {
 	ComOrder od;
-	od.Inst = m_StgyCfg.ActiveInst.code;
+	od.Inst = spod.Stgycfg.ActiveInst.code;
 	od.Dir = spod.Direction;
-	od.Vol = m_StgyCfg.ActiveInst.orderVolRatio * spod.Vol;
+	od.Vol = spod.Stgycfg.ActiveInst.orderVolRatio * spod.Vol;	
+	//对手价报单
 	od.Price = (od.Dir == THOST_FTDC_D_Buy) ?
 		m_mInstTick[od.Inst].AskPrice1 : m_mInstTick[od.Inst].BidPrice1;
+	//od.Price = m_mInstTick[spod.Stgycfg.PassiveInst.code].LastPrice + spod.OrderSpread;
 	od.Offset = CheckOrderOffset(od);
 	return od;
 }
@@ -251,11 +256,12 @@ ComOrder SpStgyExec::GetActOrder(CtpSpOrder spod)
 ComOrder SpStgyExec::GetPasOrder(CtpSpOrder spod)
 {
 	ComOrder od;
-	od.Inst = m_StgyCfg.PassiveInst.code;
+	od.Inst = spod.Stgycfg.PassiveInst.code;
 	od.Dir = '1' + '0' - spod.Direction;
-	od.Vol = m_StgyCfg.PassiveInst.orderVolRatio * spod.Vol;
-	od.Price = (od.Dir == THOST_FTDC_D_Buy) ?
-		m_mInstTick[od.Inst].AskPrice1 : m_mInstTick[od.Inst].BidPrice1;
+	od.Vol = spod.Stgycfg.PassiveInst.orderVolRatio * spod.Vol;
+	/*od.Price = (od.Dir == THOST_FTDC_D_Buy) ?
+		m_mInstTick[od.Inst].AskPrice1 : m_mInstTick[od.Inst].BidPrice1;*/
+	od.Price = spod.pActOrder.LimitPrice - spod.OrderSpread;
 	od.Offset = CheckOrderOffset(od);
 	return od;
 }
@@ -386,7 +392,6 @@ void SpStgyExec::OnCtpRtnTick(CThostFtdcDepthMarketDataField *pDepthMarketData)
 	SpTick spt = CalCurSpTick();
 	//数据处理
 	m_curSpTick = spt;
-	m_vSpTickL.push_back(spt);
 	//设置信号量
 	SetEvent(m_MDEvent);
 	//推送给策略

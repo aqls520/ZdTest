@@ -30,7 +30,7 @@ public:
 	Formula ParseMathFormula(string strMathF);
 	
 	bool CheckOrderTouch(CtpSpOrder spod);
-	void ExecAOrder(CtpSpOrder* pSpod);
+	void ExecAOrder(int OrderIdx);
 	void CancelAOrder(CtpSpOrder* pSpod);
 	//查询慎用，ctp有流控，1s只能查1次，最好初始化的时候进行查询
 	vector<CThostFtdcInvestorPositionField> GetCTPCurPosition();
@@ -53,9 +53,6 @@ private:
 	char CheckOrderOffset(ComOrder od);
 	int GetInstPos(string Inst, char Dir);
 
-private:
-	
-
 public:
 	CtpQtSpi* pQtSpi;
 	CtpTdSpi* pTdSpi;
@@ -67,8 +64,8 @@ public:
 	string PasInstCode;
 
 	SpTick m_curSpTick;
-	vector<SpTick> m_vSpTickL;
 	vector<CtpSpOrder> m_vAllSpOd;
+
 	map<string, CThostFtdcDepthMarketDataField> m_mInstTick;
 
 	vector<CThostFtdcInvestorPositionField> m_CtpPosition;

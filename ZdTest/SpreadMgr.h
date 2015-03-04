@@ -29,6 +29,8 @@ private:
 	//»á»°ºÅ
 	int m_SessionID;
 
+	CtpQtSpi* pQtSpi;
+	CtpTdSpi* pTdSpi;
 
 };
 

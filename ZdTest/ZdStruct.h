@@ -584,6 +584,26 @@ struct ErrInfo
 	string ErrorMsg;
 };
 
+struct OrdInfo
+{
+	//报单前信息
+	string Inst;//合约
+	char Dir;//方向
+	char Offset;//开平
+	int Vol;//手数
+	double Price;//报单价格
+	int OrderRef;//报单引用
+
+	//报单后信息
+	SingleOrderStatus OrderStatus;//报单状态
+	double FillPrice;//成交价格
+	int FilledVol;//成交数量
+	string ErrorNo;//错误编号
+	string ErrorMsg;
+	string OrderSysID;
+
+};
+
 struct CtpSpOrder
 {
 	OrderActionType OrderAction;
@@ -594,10 +614,13 @@ struct CtpSpOrder
 	int SpOrderRef;//价差报单引用
 	SpreadOrderStatus SpOrderStatus;//价差报单状态
 	HANDLE OrderStatusChgEvent;//报单状态变化事件
+
 	//主动腿报单信息
 	CThostFtdcOrderField pActOrder;
 	//被动腿报单信息
 	CThostFtdcOrderField pPasOrder;
+
+	StgyConfig Stgycfg;
 
 };
 

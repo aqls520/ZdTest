@@ -129,48 +129,59 @@ void SpreadStgy::Init()
 
 int i=1;
 int ordRef = 1;
+int interval = 1000;
+
+int hsleep = 100;
+int lsleep = 100;
 
 void SpreadStgy::RtnTick(SpTick spt)
 {
-	/*printf("sp=%f,spb1p=%f,spa1p=%f,spb1v=%d,spa1v=%d\n",
-			spt.Spread,spt.SpreadBid1P,spt.SpreadAsk1P,spt.SpreadBid1V,spt.SpreadAsk1V);*/
 	if (spt.Spread > 1000)
 		return;
 
 	m_vSpTickL.push_back(spt);
 
-	if (i<=10)
+	if (i<30)
 	{
 		sp_high = sp_high > spt.Spread ? sp_high : spt.Spread;
 		sp_low = sp_low < spt.Spread ? sp_low : spt.Spread;
 		i++;
+		//printf("1");
 		return;
 	}
+	if (i==30)
+	{
+		printf("hsp=%f,lsp=%f\n", sp_high, sp_low);
+		i++;
+	}
+	
 
 	if (spt.Spread > sp_high)
 	{
 		printf("high=%f,sp=%f\n", sp_high, spt.Spread);
 		CtpSpOrder spod;
+		spod.Stgycfg = m_StgyCfg;
 		spod.OrderAction = SendOrder;
 		spod.OrderSpread = spt.Spread;
 		spod.Direction = THOST_FTDC_D_Sell;
 		spod.SpOrderRef = ordRef++;
 		spod.Vol = 1;
 		m_SpSE->SendSpOrder(spod);
-		//sp_high = 1000;
+		sp_high += 1;
 		return;
 	}
 	if (spt.Spread < sp_low)
 	{
 		printf("low=%f,sp=%f\n", sp_low, spt.Spread);
 		CtpSpOrder spod;
+		spod.Stgycfg = m_StgyCfg;
 		spod.OrderAction = SendOrder;
 		spod.OrderSpread = spt.Spread;
 		spod.Direction = THOST_FTDC_D_Buy;
 		spod.SpOrderRef = ordRef++;
 		spod.Vol = 1;
 		m_SpSE->SendSpOrder(spod);
-		//sp_low = 0;
+		sp_low -= 1;
 		return;
 	}
 }

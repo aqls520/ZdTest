@@ -1,6 +1,8 @@
 #include "ZdSpi.h"
 #include "SpreadStgy.h"
 
+
+
 void main()
 {
 	SpreadStgy* pSpStgy = new SpreadStgy();
